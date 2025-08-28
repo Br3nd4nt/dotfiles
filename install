@@ -79,6 +79,7 @@ if [[ "$1" == "--uninstall" && "$2" == "--confirm" ]]; then
     remove_symlink_and_restore "$HOME/.gitignore_global"
     remove_symlink_and_restore "$HOME/.config/nvim"
     remove_symlink_and_restore "$HOME/.config/ohmyposh"
+    remove_symlink_and_restore "$HOME/.config/htop/htoprc"
     
     # Remove system utilities
     print_status "Removing system utilities..."
@@ -118,6 +119,9 @@ if [[ "$1" == "--uninstall" ]]; then
     if [ -L "$HOME/.config/ohmyposh" ]; then
         print_warning "Will remove symlink: $HOME/.config/ohmyposh"
     fi
+    if [ -L "$HOME/.config/htop/htoprc" ]; then
+        print_warning "Will remove symlink: $HOME/.config/htop/htoprc"
+    fi
     echo
     
     print_status "Backups to restore:"
@@ -138,6 +142,9 @@ if [[ "$1" == "--uninstall" ]]; then
     fi
     if [ -d "$HOME/.config/ohmyposh.backup" ]; then
         print_success "Will restore: $HOME/.config/ohmyposh.backup -> $HOME/.config/ohmyposh"
+    fi
+    if [ -f "$HOME/.config/htop/htoprc.backup" ]; then
+        print_success "Will restore: $HOME/.config/htop/htoprc.backup -> $HOME/.config/htop/htoprc"
     fi
     echo
     
@@ -163,6 +170,7 @@ if [[ "$1" != "--install" ]]; then
     check_exists "$HOME/.zprofile"
     check_exists "$HOME/.gitconfig"
     check_exists "$HOME/.gitignore_global"
+    check_exists "$HOME/.config/htop/htoprc"
     echo
     
     # Config directories
@@ -208,6 +216,7 @@ create_symlink() {
 # Create necessary directories
 print_status "Creating necessary directories..."
 mkdir -p ~/.config
+mkdir -p ~/.config/htop
 mkdir -p ~/.local/bin
 
 # Install main dotfiles
@@ -220,6 +229,9 @@ create_symlink "$DOTFILES_DIR/zprofile" "$HOME/.zprofile"
 # Git configuration
 create_symlink "$DOTFILES_DIR/gitconfig" "$HOME/.gitconfig"
 create_symlink "$DOTFILES_DIR/gitignore_global" "$HOME/.gitignore_global"
+
+# Htop configuration
+create_symlink "$DOTFILES_DIR/config/htop/htoprc" "$HOME/.config/htop/htoprc"
 
 # Install config directories
 print_status "Installing configuration directories..."
