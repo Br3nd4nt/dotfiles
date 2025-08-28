@@ -239,6 +239,12 @@ print_status "Installing configuration directories..."
 # Neovim
 if [ -d "$DOTFILES_DIR/config/nvim" ]; then
     create_symlink "$DOTFILES_DIR/config/nvim" "$HOME/.config/nvim"
+    
+    # Initialize and update git submodules for Neovim
+    print_status "Initializing Neovim git submodules..."
+    cd "$DOTFILES_DIR/config/nvim/pack/plugins/start"
+    git submodule update --init --recursive
+    cd "$DOTFILES_DIR"
 fi
 
 # Oh My Posh
