@@ -48,7 +48,108 @@ DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 print_status "Dotfiles installation preview from: $DOTFILES_DIR"
 print_status "This script will show what would be installed."
 print_status "To actually install, run: ./install.sh --install"
+print_status "To uninstall, run: ./install.sh --uninstall"
 echo
+
+# Check if --uninstall --confirm flag is provided
+if [[ "$1" == "--uninstall" && "$2" == "--confirm" ]]; then
+    print_status "=== UNINSTALLING DOTFILES ==="
+    
+    # Function to remove symlink and restore backup
+    remove_symlink_and_restore() {
+        local target="$1"
+        local backup="$1.backup"
+        
+        if [ -L "$target" ]; then
+            rm "$target"
+            print_success "Removed symlink: $target"
+        fi
+        
+        if [ -f "$backup" ] || [ -d "$backup" ]; then
+            mv "$backup" "$target"
+            print_success "Restored backup: $backup -> $target"
+        fi
+    }
+    
+    # Remove symlinks and restore backups
+    print_status "Removing symlinks and restoring backups..."
+    remove_symlink_and_restore "$HOME/.zshrc"
+    remove_symlink_and_restore "$HOME/.zprofile"
+    remove_symlink_and_restore "$HOME/.gitconfig"
+    remove_symlink_and_restore "$HOME/.gitignore_global"
+    remove_symlink_and_restore "$HOME/.config/nvim"
+    remove_symlink_and_restore "$HOME/.config/ohmyposh"
+    
+    # Remove system utilities
+    print_status "Removing system utilities..."
+    if [ -f "/usr/local/bin/fzf-git" ]; then
+        sudo rm "/usr/local/bin/fzf-git"
+        print_success "Removed: /usr/local/bin/fzf-git"
+    fi
+    
+    print_success "Dotfiles uninstallation completed!"
+    print_status "Please restart your terminal to apply changes."
+    exit 0
+fi
+
+# Check if --uninstall flag is provided (preview mode)
+if [[ "$1" == "--uninstall" ]]; then
+    print_status "=== UNINSTALL MODE ==="
+    print_status "The following actions would be performed:"
+    echo
+    
+    # Check what would be removed
+    print_status "Symlinks to remove:"
+    if [ -L "$HOME/.zshrc" ]; then
+        print_warning "Will remove symlink: $HOME/.zshrc"
+    fi
+    if [ -L "$HOME/.zprofile" ]; then
+        print_warning "Will remove symlink: $HOME/.zprofile"
+    fi
+    if [ -L "$HOME/.gitconfig" ]; then
+        print_warning "Will remove symlink: $HOME/.gitconfig"
+    fi
+    if [ -L "$HOME/.gitignore_global" ]; then
+        print_warning "Will remove symlink: $HOME/.gitignore_global"
+    fi
+    if [ -L "$HOME/.config/nvim" ]; then
+        print_warning "Will remove symlink: $HOME/.config/nvim"
+    fi
+    if [ -L "$HOME/.config/ohmyposh" ]; then
+        print_warning "Will remove symlink: $HOME/.config/ohmyposh"
+    fi
+    echo
+    
+    print_status "Backups to restore:"
+    if [ -f "$HOME/.zshrc.backup" ]; then
+        print_success "Will restore: $HOME/.zshrc.backup -> $HOME/.zshrc"
+    fi
+    if [ -f "$HOME/.zprofile.backup" ]; then
+        print_success "Will restore: $HOME/.zprofile.backup -> $HOME/.zprofile"
+    fi
+    if [ -f "$HOME/.gitconfig.backup" ]; then
+        print_success "Will restore: $HOME/.gitconfig.backup -> $HOME/.gitconfig"
+    fi
+    if [ -f "$HOME/.gitignore_global.backup" ]; then
+        print_success "Will restore: $HOME/.gitignore_global.backup -> $HOME/.gitignore_global"
+    fi
+    if [ -d "$HOME/.config/nvim.backup" ]; then
+        print_success "Will restore: $HOME/.config/nvim.backup -> $HOME/.config/nvim"
+    fi
+    if [ -d "$HOME/.config/ohmyposh.backup" ]; then
+        print_success "Will restore: $HOME/.config/ohmyposh.backup -> $HOME/.config/ohmyposh"
+    fi
+    echo
+    
+    print_status "System utilities:"
+    if [ -f "/usr/local/bin/fzf-git" ]; then
+        print_warning "Will remove: /usr/local/bin/fzf-git"
+    fi
+    echo
+    
+    print_status "To uninstall, run: ./install.sh --uninstall --confirm"
+    exit 0
+fi
 
 # Check if --install flag is provided
 if [[ "$1" != "--install" ]]; then
@@ -68,7 +169,15 @@ if [[ "$1" != "--install" ]]; then
     print_status "Configuration directories:"
     check_exists "$HOME/.config/nvim"
     check_exists "$HOME/.config/ohmyposh"
-    check_exists "$HOME/.config/fzf-git.sh"
+    echo
+    
+    # System utilities
+    print_status "System utilities:"
+    if [ -f "/usr/local/bin/fzf-git" ]; then
+        print_warning "Will update: /usr/local/bin/fzf-git"
+    else
+        print_success "Will install: /usr/local/bin/fzf-git"
+    fi
     echo
     
     print_status "To install, run: ./install.sh --install"
@@ -125,9 +234,18 @@ if [ -d "$DOTFILES_DIR/config/ohmyposh" ]; then
     create_symlink "$DOTFILES_DIR/config/ohmyposh" "$HOME/.config/ohmyposh"
 fi
 
-# FZF Git
-if [ -d "$DOTFILES_DIR/config/fzf-git.sh" ]; then
-    create_symlink "$DOTFILES_DIR/config/fzf-git.sh" "$HOME/.config/fzf-git.sh"
+# FZF Git - Install as system utility
+print_status "Installing fzf-git.sh as system utility..."
+if [ -f "$DOTFILES_DIR/config/fzf-git.sh/fzf-git.sh" ]; then
+    sudo mkdir -p /usr/local/bin
+    sudo cp "$DOTFILES_DIR/config/fzf-git.sh/fzf-git.sh" /usr/local/bin/fzf-git
+    sudo chmod +x /usr/local/bin/fzf-git
+    print_success "Installed fzf-git.sh to /usr/local/bin/fzf-git"
+else
+    print_warning "fzf-git.sh not found, downloading from GitHub..."
+    curl -s https://raw.githubusercontent.com/junegunn/fzf-git.sh/main/fzf-git.sh | sudo tee /usr/local/bin/fzf-git > /dev/null
+    sudo chmod +x /usr/local/bin/fzf-git
+    print_success "Downloaded and installed fzf-git.sh to /usr/local/bin/fzf-git"
 fi
 
 print_success "Dotfiles installation completed!"

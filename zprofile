@@ -1,7 +1,6 @@
 # =============================================================================
-# ZSH Profile - System Configuration
+# ZSH Profile
 # =============================================================================
-# This file is loaded once at login (not for each terminal session)
 
 # =============================================================================
 # System PATH Configuration

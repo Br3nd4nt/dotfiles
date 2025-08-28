@@ -1,13 +1,11 @@
 # =============================================================================
-# ZSH Configuration - User Settings
+# ZSH Configuration
 # =============================================================================
-# This file is loaded for each terminal session
 
 # =============================================================================
 # Oh My Zsh Configuration
 # =============================================================================
 export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="robbyrussell"
 ENABLE_CORRECTION="true"
 COMPLETION_WAITING_DOTS="true"
 plugins=(git fzf-docker)
@@ -27,7 +25,7 @@ eval "$(oh-my-posh init zsh --config $HOME/.config/ohmyposh/base.toml)"
 eval "$(zoxide init zsh)"
 
 # FZF Git integration
-source ~/.config/fzf-git.sh/fzf-git.sh
+source /usr/local/bin/fzf-git
 
 # =============================================================================
 # FZF Configuration
