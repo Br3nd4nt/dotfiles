@@ -61,6 +61,22 @@ fi
 # =============================================================================
 # User Aliases
 # =============================================================================
+
+alias l='ls'
+alias ll='ls -lha'
+alias suod='sudo'
+alias grep='rg
+'
+grep --color=auto < /dev/null &>/dev/null && alias grep='grep --color=auto'
+xdg-open --version &>/dev/null && alias open='xdg-open'
+
+# Enable color support of ls
+if ls --color=auto &>/dev/null; then
+	alias ls='ls -p --color=auto'
+else
+	alias ls='ls -p -G'
+fi
+
 # File management
 alias cleands='find . -name ".DS_Store" -type f -delete'
 alias cd=z
@@ -71,7 +87,6 @@ alias slf="swiftlint --fix"
 
 # System utilities
 alias bubu="brew update && brew upgrade"
-alias cls="clear && printf '\033[3J'"  # Полная очистка терминала
 
 # Configuration editing
 alias zcf="vim ~/.zshrc"
@@ -81,16 +96,7 @@ alias zs="source ~/.zshrc"
 # Key Bindings
 # =============================================================================
 function clear-scrollback-buffer {
-  # Behavior of clear: 
-  # 1. clear scrollback if E3 cap is supported (terminal, platform specific)
-  # 2. then clear visible screen
-  # For some terminal 'e[3J' need to be sent explicitly to clear scrollback
   clear && printf '\e[3J'
-  # .reset-prompt: bypass the zsh-syntax-highlighting wrapper
-  # https://github.com/sorin-ionescu/prezto/issues/1026
-  # https://github.com/zsh-users/zsh-autosuggestions/issues/107#issuecomment-183824034
-  # -R: redisplay the prompt to avoid old prompts being eaten up
-  # https://github.com/Powerlevel9k/powerlevel9k/pull/1176#discussion_r299303453
   zle && zle .reset-prompt && zle -R
 }
 
