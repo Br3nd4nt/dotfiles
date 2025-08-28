@@ -34,10 +34,14 @@
 - `Ctrl+T` - поиск файлов
 - `Ctrl+R` - история команд
 
+### Терминал:
+- `Ctrl+L` - полная очистка терминала
+
 ## Алиасы
 
 - `gl` - git log с графиком
 - `slf` - swiftlint --fix
 - `cleands` - удаление .DS_Store
 - `bubu` - brew update && upgrade
+- `cls` - полная очистка терминала
 - `zcf` - редактирование .zshrc
