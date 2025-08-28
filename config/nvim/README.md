@@ -1,102 +1,87 @@
-# Neovim - Краткая памятка 🚀
+# Neovim Configuration 🚀
 
-## 🚪 **Открытие/Закрытие**
-```bash
-nvim file.txt          # Открыть файл
-:q                     # Выйти
-:w                     # Сохранить
-:wq                    # Сохранить и выйти
-:q!                    # Выйти без сохранения
-```
+## Overview
+This Neovim configuration uses **Lazy.nvim** as the plugin manager, providing a modern and efficient way to manage plugins.
 
-## ⌨️ **Основные режимы**
-- **Normal** - навигация и команды (по умолчанию)
-- **Insert** - `i` для вставки текста
-- **Visual** - `v` для выделения
-- **Command** - `:` для команд
+## Features
+- **Lazy.nvim**: Fast plugin manager with lazy loading
+- **Catppuccin**: Beautiful color scheme
+- **Telescope**: Fuzzy finder for files, grep, and more
+- **NERDTree**: File explorer
+- **LSP Support**: Language Server Protocol for multiple languages
+- **Mason**: LSP installer and manager
+- **Treesitter**: Enhanced syntax highlighting
+- **Which Key**: Key binding helper
+- **Comment**: Easy commenting
+- **Surround**: Surround text with brackets, quotes, etc.
 
-## 🧭 **Навигация**
-```
-h j k l                # Влево, вниз, вверх, вправо
-w                      # Следующее слово
-b                      # Предыдущее слово
-0                      # Начало строки
-$                      # Конец строки
-gg                     # Начало файла
-G                      # Конец файла
-:10                    # Перейти на строку 10
-```
+## Key Bindings
 
-## 🔍 **Поиск**
-```
-/текст                 # Поиск вперед
-?текст                 # Поиск назад
-n                      # Следующий результат
-N                      # Предыдущий результат
-*                      # Поиск слова под курсором
-```
+### General
+- `<Space>` - Leader key
+- `<leader>w` - Save file
+- `<leader>q` - Quit
+- `<leader>nh` - Clear search highlights
 
-## 📁 **Файлы (Telescope)**
-```
-<Space>ff              # Поиск файлов
-<Space>fg              # Поиск текста в файлах
-<Space>fb              # Список буферов
-<Space>fh              # Справка
-```
+### File Navigation
+- `<leader>ff` - Find files (Telescope)
+- `<leader>fg` - Live grep (Telescope)
+- `<leader>fb` - Find buffers (Telescope)
+- `<leader>e` - Toggle NERDTree
+- `<leader>ef` - Find current file in NERDTree
 
-## 🪟 **Окна**
-```
-<C-h/j/k/l>            # Переключение между окнами
-<Space>sv              # Разделить по вертикали
-<Space>sh              # Разделить по горизонтали
-<Space>sx              # Закрыть окно
-```
+### Window Management
+- `<C-h/j/k/l>` - Navigate between windows
+- `<leader>sv` - Split vertically
+- `<leader>sh` - Split horizontally
+- `<leader>se` - Equalize window sizes
+- `<leader>sx` - Close current window
 
-## 📝 **Редактирование**
-```
-i                      # Вставить текст
-a                      # Вставить после курсора
-o                      # Новая строка снизу
-O                      # Новая строка сверху
-x                      # Удалить символ
-dd                     # Удалить строку
-yy                     # Копировать строку
-p                      # Вставить
-u                      # Отменить
-<C-r>                  # Повторить
-```
+### LSP (Language Server Protocol)
+- `gd` - Go to definition
+- `gr` - Go to references
+- `K` - Hover information
+- `<leader>ca` - Code actions
+- `<leader>rn` - Rename symbol
+- `<leader>f` - Format document
+- `<leader>ds` - Show diagnostics
+- `<leader>dn` - Next diagnostic
+- `<leader>dp` - Previous diagnostic
 
-## 🚀 **LSP (Language Server)**
-```
-gd                     # Определение функции
-gr                     # Ссылки
-K                      # Документация
-<Space>ca              # Действия с кодом
-<Space>rn              # Переименование
-<Space>f               # Форматирование
-<Space>ds              # Показать диагностику
-<Space>dn/dp           # Следующая/предыдущая ошибка
-```
+### Commands
+- `:HealthCheck` - Run custom health check
+- `:TSInstallAll` - Install all Treesitter parsers
+- `:LSPInstall` - Install all LSP servers
+- `:MasonStatus` - Check Mason status and installed packages
+- `:CleanInstall` - Clean and reinstall all plugins
+- `:Lazy sync` - Sync all plugins
+- `:Lazy log` - View plugin installation logs
 
-## 💾 **Быстрые команды**
-```
-<Space>w               # Сохранить
-<Space>q               # Выйти
-<Space>nh              # Очистить поиск
-```
+## Plugin Management
+Plugins are managed by Lazy.nvim and will be automatically installed on first startup.
 
-## 🎨 **Цветовая схема**
-- **Catppuccin** - красивая темная тема
-- Автоматическое определение типов файлов
-- Подсветка синтаксиса для всех языков
+## First Time Setup
+1. Install the dotfiles using `./install --install`
+2. Start Neovim - plugins will be automatically installed via Lazy.nvim
+3. Wait for the initial plugin installation to complete
+4. If needed, manually install parsers and LSP servers:
+   - `:TSInstallAll` - for Treesitter parsers
+   - `:LSPInstall` - for LSP servers
 
-## 🔧 **Настройка**
-- Конфигурация в `~/.config/nvim/`
-- Плагины через git submodules
-- Автоматическая установка LSP серверов
+**Note**: This configuration uses Lazy.nvim instead of git submodules. All plugins are managed automatically and will be installed in `~/.local/share/nvim/lazy/`.
 
-## 💡 **Советы**
-- Используйте `<Space>` как основную клавишу
-- Telescope - ваш лучший друг для поиска
-- LSP работает автоматически для поддерживаемых языков
-- `:help` - всегда доступная справка
+## Troubleshooting
+If you encounter issues:
+1. Check `:checkhealth` for system requirements
+2. Run `:Lazy sync` to reinstall plugins
+3. Check `:Lazy log` for error messages
+4. Run `:HealthCheck` for custom health check
+5. If Treesitter parsers fail to install, run `:TSInstallAll`
+6. If LSP servers fail to install, run `:LSPInstall`
+7. For Mason errors, try restarting Neovim and running `:Lazy sync`
+8. For persistent issues, run `:CleanInstall` to completely reinstall plugins
+
+## Customization
+- Add new plugins in `lua/plugins.lua`
+- Modify key bindings in `lua/core.lua`
+- Change LSP settings in `lua/plugins.lua`

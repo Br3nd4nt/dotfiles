@@ -83,6 +83,10 @@ map("n", "<leader>fg", "<cmd>Telescope live_grep<cr>")
 map("n", "<leader>fb", "<cmd>Telescope buffers<cr>")
 map("n", "<leader>fh", "<cmd>Telescope help_tags<cr>")
 
+-- NERDTree
+map("n", "<leader>e", "<cmd>NERDTreeToggle<cr>")
+map("n", "<leader>ef", "<cmd>NERDTreeFind<cr>")
+
 -- Window navigation
 map("n", "<C-h>", "<C-w>h")
 map("n", "<C-j>", "<C-w>j")
@@ -136,120 +140,78 @@ autocmd("FileType", {
 })
 
 -- =============================================================================
--- LSP Setup with Mason
+-- LSP Keymaps
 -- =============================================================================
 
--- Setup Mason
-pcall(function()
-  require("mason").setup({
-    ui = {
-      border = "rounded",
-    },
-  })
-end)
+-- LSP keymaps
+local function map(mode, lhs, rhs, opts)
+  local options = { noremap = true, silent = true }
+  if opts then
+    options = vim.tbl_extend("force", options, opts)
+  end
+  vim.keymap.set(mode, lhs, rhs, options)
+end
 
--- Setup LSP servers
-pcall(function()
-  local lspconfig = require("lspconfig")
-  
-  -- LSP servers configuration
-  local servers = {
-    -- Lua
-    lua_ls = {
-      settings = {
-        Lua = {
-          diagnostics = {
-            globals = { "vim" },
-          },
-        },
-      },
-    },
-    
-    -- Python
-    pyright = {
-      settings = {
-        python = {
-          analysis = {
-            typeCheckingMode = "basic",
-          },
-        },
-      },
-    },
-    
-    -- JSON
-    jsonls = {
-      settings = {
-        json = {
-          validate = { enable = true },
-        },
-      },
-    },
-    
-    -- YAML
-    yamlls = {
-      settings = {
-        yaml = {
-          schemas = {
-            ["https://json.schemastore.org/github-workflow.json"] = "/.github/workflows/*.{yml,yaml}",
-            ["https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json"] = "docker-compose*.{yml,yaml}",
-          },
-        },
-      },
-    },
-    
-    -- Bash
-    bashls = {
-      settings = {
-        bash = {
-          validate = true,
-        },
-      },
-    },
-    
-    -- Docker
-    dockerls = {
-      settings = {
-        docker = {
-          languageserver = {
-            formatter = {
-              ignore = {},
-            },
-          },
-        },
-      },
-    },
-    
-    -- Markdown
-    marksman = {},
-    
-    -- Swift
-    sourcekit = {},
-  }
-  
-  -- Setup each server
-  for server_name, config in pairs(servers) do
+-- LSP keymaps
+map("n", "gd", "<cmd>lua vim.lsp.buf.definition()<cr>")
+map("n", "gr", "<cmd>lua vim.lsp.buf.references()<cr>")
+map("n", "K", "<cmd>lua vim.lsp.buf.hover()<cr>")
+map("n", "<leader>ca", "<cmd>lua vim.lsp.buf.code_action()<cr>")
+map("n", "<leader>rn", "<cmd>lua vim.lsp.buf.rename()<cr>")
+map("n", "<leader>f", "<cmd>lua vim.lsp.buf.format()<cr>")
+map("n", "<leader>ds", "<cmd>lua vim.diagnostic.open_float()<cr>")
+map("n", "<leader>dn", "<cmd>lua vim.diagnostic.goto_next()<cr>")
+map("n", "<leader>dp", "<cmd>lua vim.diagnostic.goto_prev()<cr>")
+
+-- Health check command
+vim.api.nvim_create_user_command("HealthCheck", function()
+  local health = require("health")
+  health.check_all()
+end, {})
+
+-- Treesitter install command
+vim.api.nvim_create_user_command("TSInstallAll", function()
+  local ok, treesitter = pcall(require, "nvim-treesitter.install")
+  if ok then
+    vim.cmd("TSInstall lua python json yaml bash dockerfile markdown vim c cpp")
+    vim.notify("Treesitter parsers installation started", vim.log.levels.INFO)
+  else
+    vim.notify("Treesitter not available", vim.log.levels.ERROR)
+  end
+end, {})
+
+-- LSP install command
+vim.api.nvim_create_user_command("LSPInstall", function()
+  local ok, mason = pcall(require, "mason")
+  if ok then
+    -- Use pcall to avoid errors if Mason UI is not ready
     pcall(function()
-      lspconfig[server_name].setup(config)
+      vim.cmd("MasonInstall lua-language-server pyright json-lsp yaml-language-server bash-language-server docker-langserver marksman")
     end)
+    vim.notify("LSP servers installation started", vim.log.levels.INFO)
+  else
+    vim.notify("Mason not available", vim.log.levels.ERROR)
   end
-  
-  -- LSP keymaps
-  local function map(mode, lhs, rhs, opts)
-    local options = { noremap = true, silent = true }
-    if opts then
-      options = vim.tbl_extend("force", options, opts)
-    end
-    vim.keymap.set(mode, lhs, rhs, options)
+end, {})
+
+-- Mason status command
+vim.api.nvim_create_user_command("MasonStatus", function()
+  local ok, mason = pcall(require, "mason")
+  if ok then
+    -- Use pcall to avoid errors if Mason UI is not ready
+    pcall(function()
+      vim.cmd("Mason")
+    end)
+    vim.notify("Mason status checked", vim.log.levels.INFO)
+  else
+    vim.notify("Mason not available", vim.log.levels.ERROR)
   end
-  
-  -- LSP keymaps
-  map("n", "gd", "<cmd>lua vim.lsp.buf.definition()<cr>")
-  map("n", "gr", "<cmd>lua vim.lsp.buf.references()<cr>")
-  map("n", "K", "<cmd>lua vim.lsp.buf.hover()<cr>")
-  map("n", "<leader>ca", "<cmd>lua vim.lsp.buf.code_action()<cr>")
-  map("n", "<leader>rn", "<cmd>lua vim.lsp.buf.rename()<cr>")
-  map("n", "<leader>f", "<cmd>lua vim.lsp.buf.format()<cr>")
-  map("n", "<leader>ds", "<cmd>lua vim.diagnostic.open_float()<cr>")
-  map("n", "<leader>dn", "<cmd>lua vim.diagnostic.goto_next()<cr>")
-  map("n", "<leader>dp", "<cmd>lua vim.diagnostic.goto_prev()<cr>")
-end)
+end, {})
+
+-- Clean and reinstall command
+vim.api.nvim_create_user_command("CleanInstall", function()
+  vim.notify("Cleaning and reinstalling plugins...", vim.log.levels.INFO)
+  vim.cmd("Lazy clean")
+  vim.cmd("Lazy sync")
+  vim.notify("Clean install completed", vim.log.levels.INFO)
+end, {})

@@ -178,11 +178,13 @@ if [[ "$1" != "--install" ]]; then
     check_exists "$HOME/.config/nvim"
     check_exists "$HOME/.config/ohmyposh"
     echo
+    print_status "Note: Neovim will use Lazy.nvim for plugin management"
+    echo
     
     # System utilities
     print_status "System utilities:"
     if [ -f "/usr/local/bin/fzf-git" ]; then
-        print_warning "Will update: /usr/local/bin/fzf-git"
+        print_warning "Already installed: /usr/local/bin/fzf-git"
     else
         print_success "Will install: /usr/local/bin/fzf-git"
     fi
@@ -239,12 +241,7 @@ print_status "Installing configuration directories..."
 # Neovim
 if [ -d "$DOTFILES_DIR/config/nvim" ]; then
     create_symlink "$DOTFILES_DIR/config/nvim" "$HOME/.config/nvim"
-    
-    # Initialize and update git submodules for Neovim
-    print_status "Initializing Neovim git submodules..."
-    cd "$DOTFILES_DIR/config/nvim/pack/plugins/start"
-    git submodule update --init --recursive
-    cd "$DOTFILES_DIR"
+    print_status "Neovim configuration linked (using Lazy.nvim for plugins)"
 fi
 
 # Oh My Posh
@@ -254,13 +251,11 @@ fi
 
 # FZF Git - Install as system utility
 print_status "Installing fzf-git.sh as system utility..."
-if [ -f "$DOTFILES_DIR/config/fzf-git.sh/fzf-git.sh" ]; then
-    sudo mkdir -p /usr/local/bin
-    sudo cp "$DOTFILES_DIR/config/fzf-git.sh/fzf-git.sh" /usr/local/bin/fzf-git
-    sudo chmod +x /usr/local/bin/fzf-git
-    print_success "Installed fzf-git.sh to /usr/local/bin/fzf-git"
+if [ -f "/usr/local/bin/fzf-git" ]; then
+    print_warning "fzf-git already installed at /usr/local/bin/fzf-git"
+    print_status "Skipping installation..."
 else
-    print_warning "fzf-git.sh not found, downloading from GitHub..."
+    print_warning "fzf-git not found, downloading from GitHub..."
     curl -s https://raw.githubusercontent.com/junegunn/fzf-git.sh/main/fzf-git.sh | sudo tee /usr/local/bin/fzf-git > /dev/null
     sudo chmod +x /usr/local/bin/fzf-git
     print_success "Downloaded and installed fzf-git.sh to /usr/local/bin/fzf-git"
