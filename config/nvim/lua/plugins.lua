@@ -24,9 +24,70 @@ require("lazy").setup({
     name = "catppuccin",
     priority = 1000,
     config = function()
+      require("catppuccin").setup({
+        flavour = "mocha", -- latte, frappe, macchiato, mocha
+        background = { -- :h background
+          light = "latte",
+          dark = "mocha",
+        },
+        transparent_background = false,
+        show_end_of_buffer = false,
+        term_colors = true,
+        dim_inactive = {
+          enabled = false,
+          shade = "dark",
+          percentage = 0.15,
+        },
+        styles = {
+          comments = { "italic" },
+          conditionals = { "italic" },
+          loops = {},
+          functions = {},
+          keywords = {},
+          strings = {},
+          variables = {},
+          numbers = {},
+          booleans = {},
+          properties = {},
+          types = {},
+          operators = {},
+        },
+        integrations = {
+          aerial = true,
+          alpha = true,
+          cmp = true,
+          gitsigns = true,
+          illuminate = true,
+          indent_blankline = { enabled = true },
+          mason = true,
+          native_lsp = {
+            enabled = true,
+            virtual_text = {
+              errors = { "italic" },
+              hints = { "italic" },
+              warnings = { "italic" },
+              information = { "italic" },
+            },
+            underlines = {
+              errors = { "underline" },
+              hints = { "underline" },
+              warnings = { "underline" },
+              information = { "underline" },
+            },
+          },
+          notify = true,
+          neotree = true,
+          treesitter = true,
+          which_key = true,
+        },
+        color_overrides = {},
+        custom_highlights = {},
+      })
       vim.cmd.colorscheme "catppuccin"
     end,
   },
+  
+
   
   -- Telescope (fuzzy finder)
   {
@@ -46,7 +107,15 @@ require("lazy").setup({
             },
           },
         },
+        pickers = {
+          colorscheme = {
+            enable_preview = true,
+          },
+        },
       })
+      
+      -- Load builtin pickers
+      require("telescope.builtin")
     end,
   },
   
@@ -77,9 +146,20 @@ require("lazy").setup({
     end,
   },
   
+  -- Mini Icons (required by which-key)
+  {
+    "echasnovski/mini.icons",
+    config = function()
+      require("mini.icons").setup()
+    end,
+  },
+
   -- Which Key
   {
     "folke/which-key.nvim",
+    dependencies = {
+      "echasnovski/mini.icons",
+    },
     config = function()
       require("which-key").setup({
         plugins = {
@@ -90,11 +170,38 @@ require("lazy").setup({
             suggestions = 20,
           },
         },
-        window = {
+        triggers = { "auto" }, -- Automatically show which-key when pressing leader
+        win = {
           border = "rounded",
           position = "bottom",
           margin = { 1, 0, 1, 0 },
           padding = { 2, 2, 2, 2 },
+          relative = "editor",
+        },
+        layout = {
+          height = { min = 4, max = 25 },
+          width = { min = 20, max = 50 },
+          spacing = 3,
+          align = "left",
+        },
+        icons = {
+          breadcrumb = "»",
+          separator = "➜",
+          group = "+",
+        },
+        keys = {
+          scroll_down = "<c-d>",
+          scroll_up = "<c-u>",
+        },
+        show_help = true,
+        show_keys = true,
+        replace = {
+          ["<space>"] = "SPC",
+          ["<cr>"] = "RET",
+          ["<tab>"] = "TAB",
+          ["<esc>"] = "ESC",
+          ["<bs>"] = "BS",
+          ["<leader>"] = "LEADER",
         },
       })
     end,
@@ -237,7 +344,10 @@ require("lazy").setup({
   -- Treesitter (syntax highlighting)
   {
     "nvim-treesitter/nvim-treesitter",
-    build = ":TSUpdate",
+    build = function()
+      local ts_update = require("nvim-treesitter.install").update({ with_sync = true })
+      ts_update()
+    end,
     config = function()
       require("nvim-treesitter.configs").setup({
         ensure_installed = {
@@ -254,7 +364,8 @@ require("lazy").setup({
         },
         highlight = { enable = true },
         indent = { enable = true },
-        auto_install = true,
+        auto_install = false, -- Disable auto-install to avoid startup issues
+        sync_install = false, -- Don't sync install during startup
       })
     end,
   },
@@ -294,10 +405,21 @@ require("lazy").setup({
   -- Indent lines
   {
     "lukas-reineke/indent-blankline.nvim",
+    main = "ibl",
     config = function()
-      require("indent_blankline").setup({
-        show_current_context = true,
-        show_current_context_start = true,
+      require("ibl").setup({
+        indent = {
+          char = "│",
+          tab_char = "│",
+        },
+        scope = {
+          enabled = true,
+          show_start = true,
+          show_end = false,
+          injected_languages = true,
+          highlight = "Function",
+          priority = 500,
+        },
       })
     end,
   },

@@ -1,0 +1,92 @@
+# Ghostty Configuration
+# Terminal settings
+
+# Font configuration
+font-family = "JetBrains Mono Nerd Font"
+font-size = 14
+font-feature = "liga" 1
+font-feature = "calt" 1
+
+# Window settings
+window-padding-x = 20
+window-padding-y = 20
+window-decoration = false
+window-theme = system
+
+# Colors (using a modern dark theme)
+background = #0a0a0a
+foreground = #d4d4d4
+
+# Cursor
+cursor = #d4d4d4
+cursor-style = beam
+cursor-blink = true
+
+# Selection
+selection-background = #264f78
+selection-foreground = #d4d4d4
+
+# Color palette (based on a modern dark theme)
+color-0 = #000000
+color-1 = #cd3131
+color-2 = #0dbc79
+color-3 = #e5e510
+color-4 = #2472c8
+color-5 = #bc3fbc
+color-6 = #11a8cd
+color-7 = #e5e5e5
+color-8 = #666666
+color-9 = #f14c4c
+color-10 = #23d18b
+color-11 = #f5f543
+color-12 = #3b8eea
+color-13 = #d670d6
+color-14 = #29b8db
+color-15 = #ffffff
+
+# Performance
+vsync = true
+max-fps = 60
+
+# Shell integration
+shell-integration = enabled
+
+# Key bindings
+keybind = ctrl+shift+c=copy
+keybind = ctrl+shift+v=paste
+keybind = ctrl+shift+t=new_tab
+keybind = ctrl+shift+w=close_tab
+keybind = ctrl+shift+left=previous_tab
+keybind = ctrl+shift+right=next_tab
+keybind = ctrl+shift+n=new_window
+keybind = ctrl+shift+w=close_window
+
+# Tab settings
+tab-bar = true
+tab-bar-style = powerline
+
+# Mouse settings
+mouse-hide-while-typing = true
+
+# Bell settings
+bell = visual
+bell-style = full
+
+# URL detection
+url-style = curly
+
+# Performance optimizations
+background-opacity = 1.0
+background-image = none
+
+# Copy on select
+copy-on-select = true
+
+# Focus follows mouse
+focus-follows-mouse = true
+
+# Allow hyperlinks
+allow-hyperlink = true
+
+# Allow remote control
+allow-remote-control = true
