@@ -1,6 +1,7 @@
 # =============================================================================
-# ZSH Configuration File
+# ZSH Configuration - User Settings
 # =============================================================================
+# This file is loaded for each terminal session
 
 # =============================================================================
 # Oh My Zsh Configuration
@@ -12,27 +13,21 @@ COMPLETION_WAITING_DOTS="true"
 plugins=(git fzf-docker)
 
 # =============================================================================
-# Environment Variables
+# Load Oh My Zsh
 # =============================================================================
-export MANPATH="/usr/local/man:$MANPATH"
-export LANG=en_US.UTF-8
+source $ZSH/oh-my-zsh.sh
 
 # =============================================================================
-# PATH Configuration
+# Shell Enhancements
 # =============================================================================
-export PATH="/opt/homebrew/bin:$PATH" 
-export PATH="/opt/homebrew/opt/openjdk@17/bin:$PATH"
+# Oh My Posh prompt
+eval "$(oh-my-posh init zsh --config $HOME/.config/ohmyposh/base.toml)"
 
-# =============================================================================
-# Editor Configuration
-# =============================================================================
-if [[ -n $SSH_CONNECTION ]]; then
-  export EDITOR='vim'
-else
-  alias vim=nvim
-  alias v=nvim
-  export EDITOR='nvim'
-fi
+# Zoxide (smart cd)
+eval "$(zoxide init zsh)"
+
+# FZF Git integration
+source ~/.config/fzf-git.sh/fzf-git.sh
 
 # =============================================================================
 # FZF Configuration
@@ -52,32 +47,21 @@ _fzf_compgen_dir() {
 }
 
 # =============================================================================
-# Shell Enhancements
-# =============================================================================
-# Oh My Posh prompt
-eval "$(oh-my-posh init zsh --config $HOME/.config/ohmyposh/base.toml)"
-
-# Zoxide (smart cd)
-eval "$(zoxide init zsh)"
-
-# FZF Git integration
-source ~/.config/fzf-git.sh/fzf-git.sh
-
-# =============================================================================
 # Python Environment
 # =============================================================================
-export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init --path)"
 eval "$(pyenv init -)"
 
 # =============================================================================
-# Load Oh My Zsh
+# Editor Aliases
 # =============================================================================
-source $ZSH/oh-my-zsh.sh
+if [[ -z $SSH_CONNECTION ]]; then
+  alias vim=nvim
+  alias v=nvim
+fi
 
 # =============================================================================
-# Aliases
+# User Aliases
 # =============================================================================
 # File management
 alias cleands='find . -name ".DS_Store" -type f -delete'
@@ -92,8 +76,3 @@ alias bubu="brew update && brew upgrade"
 
 # Configuration editing
 alias zcf="vim ~/.zshrc"
-
-# =============================================================================
-# Local Environment
-# =============================================================================
-. "$HOME/.local/bin/env"

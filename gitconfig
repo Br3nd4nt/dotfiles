@@ -2,10 +2,5 @@
 [user]
 	name = Br3nd4nt
 	email = Vlad.belov.08@gmail.com
-# Please adapt and uncomment the following lines:
-#	name = br3nd4nt
-#	email = br3nd4nt@br3nd4nts-Laptop.local
-# [credential]
-# 	helper = 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
 [core]
 	excludesfile = /Users/br3nd4nt/.gitignore_global
