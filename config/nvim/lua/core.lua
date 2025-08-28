@@ -77,36 +77,11 @@ local function map(mode, lhs, rhs, opts)
   vim.keymap.set(mode, lhs, rhs, options)
 end
 
--- Manual which-key trigger (if needed)
-map("n", "<leader>?", "<cmd>WhichKey<cr>")
+-- Load general mappings
+require("core.utils").load_mappings "general"
 
--- Simple keymaps without which-key
-map("n", "<leader>ff", "<cmd>Telescope find_files<cr>")
-map("n", "<leader>fg", "<cmd>Telescope live_grep<cr>")
-map("n", "<leader>fb", "<cmd>Telescope buffers<cr>")
-map("n", "<leader>fh", "<cmd>Telescope help_tags<cr>")
-map("n", "<leader>ee", "<cmd>NERDTreeToggle<cr>")
-map("n", "<leader>ef", "<cmd>NERDTreeFind<cr>")
-map("n", "<leader>sv", "<C-w>v")
-map("n", "<leader>sh", "<C-w>s")
-map("n", "<leader>se", "<C-w>=")
-map("n", "<leader>sx", "<cmd>close<cr>")
-map("n", "<leader>w", "<cmd>w<cr>")
-map("n", "<leader>q", "<cmd>q<cr>")
-map("n", "<leader>nh", "<cmd>nohl<cr>")
-map("n", "<leader>ca", "<cmd>lua vim.lsp.buf.code_action()<cr>")
-map("n", "<leader>crn", "<cmd>lua vim.lsp.buf.rename()<cr>")
-map("n", "<leader>cf", "<cmd>lua vim.lsp.buf.format()<cr>")
-map("n", "<leader>ds", "<cmd>lua vim.diagnostic.open_float()<cr>")
-map("n", "<leader>dn", "<cmd>lua vim.diagnostic.goto_next()<cr>")
-map("n", "<leader>dp", "<cmd>lua vim.diagnostic.goto_prev()<cr>")
-map("n", "K", "<cmd>lua vim.lsp.buf.hover()<cr>")
-map("n", "gd", "<cmd>lua vim.lsp.buf.definition()<cr>")
-map("n", "gr", "<cmd>lua vim.lsp.buf.references()<cr>")
-map("n", "<C-h>", "<C-w>h")
-map("n", "<C-j>", "<C-w>j")
-map("n", "<C-k>", "<C-w>k")
-map("n", "<C-l>", "<C-w>l")
+-- Note: All plugin-specific keymaps are loaded by their respective plugins
+-- This prevents conflicts and provides better organization
 
 -- =============================================================================
 -- Autocommands
@@ -152,14 +127,7 @@ autocmd("FileType", {
   command = "setlocal ts=4 sw=4 expandtab",
 })
 
--- =============================================================================
--- Health check command
--- =============================================================================
 
-vim.api.nvim_create_user_command("HealthCheck", function()
-  local health = require("health")
-  health.check_all()
-end, {})
 
 -- Treesitter install command
 vim.api.nvim_create_user_command("TSInstallAll", function()

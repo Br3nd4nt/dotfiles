@@ -54,23 +54,23 @@ echo
 # Check if --uninstall --confirm flag is provided
 if [[ "$1" == "--uninstall" && "$2" == "--confirm" ]]; then
     print_status "=== UNINSTALLING DOTFILES ==="
-    
+
     # Function to remove symlink and restore backup
     remove_symlink_and_restore() {
         local target="$1"
         local backup="$1.backup"
-        
+
         if [ -L "$target" ]; then
             rm "$target"
             print_success "Removed symlink: $target"
         fi
-        
+
         if [ -f "$backup" ] || [ -d "$backup" ]; then
             mv "$backup" "$target"
             print_success "Restored backup: $backup -> $target"
         fi
     }
-    
+
     # Remove symlinks and restore backups
     print_status "Removing symlinks and restoring backups..."
     remove_symlink_and_restore "$HOME/.zshrc"
@@ -81,14 +81,14 @@ if [[ "$1" == "--uninstall" && "$2" == "--confirm" ]]; then
     remove_symlink_and_restore "$HOME/.config/ohmyposh"
     remove_symlink_and_restore "$HOME/.config/htop/htoprc"
     remove_symlink_and_restore "$HOME/.config/ghostty/config"
-    
+
     # Remove system utilities
     print_status "Removing system utilities..."
     if [ -f "/usr/local/bin/fzf-git" ]; then
         sudo rm "/usr/local/bin/fzf-git"
         print_success "Removed: /usr/local/bin/fzf-git"
     fi
-    
+
     print_success "Dotfiles uninstallation completed!"
     print_status "Please restart your terminal to apply changes."
     exit 0
@@ -99,7 +99,7 @@ if [[ "$1" == "--uninstall" ]]; then
     print_status "=== UNINSTALL MODE ==="
     print_status "The following actions would be performed:"
     echo
-    
+
     # Check what would be removed
     print_status "Symlinks to remove:"
     if [ -L "$HOME/.zshrc" ]; then
@@ -127,7 +127,7 @@ if [[ "$1" == "--uninstall" ]]; then
         print_warning "Will remove symlink: $HOME/.config/ghostty/config"
     fi
     echo
-    
+
     print_status "Backups to restore:"
     if [ -f "$HOME/.zshrc.backup" ]; then
         print_success "Will restore: $HOME/.zshrc.backup -> $HOME/.zshrc"
@@ -154,13 +154,13 @@ if [[ "$1" == "--uninstall" ]]; then
         print_success "Will restore: $HOME/.config/ghostty/config.backup -> $HOME/.config/ghostty/config"
     fi
     echo
-    
+
     print_status "System utilities:"
     if [ -f "/usr/local/bin/fzf-git" ]; then
         print_warning "Will remove: /usr/local/bin/fzf-git"
     fi
     echo
-    
+
     print_status "To uninstall, run: ./install.sh --uninstall --confirm"
     exit 0
 fi
@@ -170,7 +170,7 @@ if [[ "$1" != "--install" ]]; then
     print_status "=== PREVIEW MODE ==="
     print_status "The following symlinks would be created:"
     echo
-    
+
     # Main dotfiles
     print_status "Main dotfiles:"
     check_exists "$HOME/.zshrc"
@@ -180,7 +180,7 @@ if [[ "$1" != "--install" ]]; then
     check_exists "$HOME/.config/htop/htoprc"
     check_exists "$HOME/.config/ghostty/config"
     echo
-    
+
     # Config directories
     print_status "Configuration directories:"
     check_exists "$HOME/.config/nvim"
@@ -188,7 +188,7 @@ if [[ "$1" != "--install" ]]; then
     echo
     print_status "Note: Neovim uses Lazy.nvim for plugin management (no git submodules)"
     echo
-    
+
     # System utilities
     print_status "System utilities:"
     if [ -f "/usr/local/bin/fzf-git" ]; then
@@ -197,7 +197,7 @@ if [[ "$1" != "--install" ]]; then
         print_success "Will install: /usr/local/bin/fzf-git"
     fi
     echo
-    
+
     print_status "To install, run: ./install.sh --install"
     exit 0
 fi
@@ -208,17 +208,17 @@ print_status "=== INSTALLATION MODE ==="
 create_symlink() {
     local source="$1"
     local target="$2"
-    
+
     if [ -L "$target" ]; then
         print_warning "Symlink already exists: $target"
         return 0
     fi
-    
+
     if [ -f "$target" ] || [ -d "$target" ]; then
         print_warning "Backing up existing file/directory: $target"
         mv "$target" "$target.backup"
     fi
-    
+
     ln -sf "$source" "$target"
     print_success "Created symlink: $target -> $source"
 }

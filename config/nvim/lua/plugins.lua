@@ -16,8 +16,14 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
--- Configure lazy.nvim
-require("lazy").setup({
+-- All plugins have lazy=true by default, to load a plugin on startup just lazy=false
+local default_plugins = {
+  "nvim-lua/plenary.nvim",
+
+  -- Disable LuaRocks to avoid installation issues
+  rocks = {
+    enabled = false,
+  },
   -- Catppuccin colorscheme
   {
     "catppuccin/nvim",
@@ -96,6 +102,10 @@ require("lazy").setup({
     dependencies = {
       "nvim-lua/plenary.nvim",
     },
+    cmd = "Telescope",
+    init = function()
+      require("core.utils").load_mappings "telescope"
+    end,
     config = function()
       local telescope = require("telescope")
       telescope.setup({
@@ -122,6 +132,10 @@ require("lazy").setup({
   -- NERDTree
   {
     "preservim/nerdtree",
+    cmd = { "NERDTreeToggle", "NERDTreeFocus" },
+    init = function()
+      require("core.utils").load_mappings "nvimtree"
+    end,
     config = function()
       vim.g.NERDTreeShowHidden = 1
       vim.g.NERDTreeMinimalUI = 1
@@ -154,57 +168,60 @@ require("lazy").setup({
     end,
   },
 
-  -- Which Key
+  -- Only load whichkey after all the gui
   {
     "folke/which-key.nvim",
-    dependencies = {
-      "echasnovski/mini.icons",
-    },
-    config = function()
-      require("which-key").setup({
-        plugins = {
-          marks = true,
-          registers = true,
-          spelling = {
-            enabled = true,
-            suggestions = 20,
-          },
-        },
-        triggers = { "auto" }, -- Automatically show which-key when pressing leader
-        win = {
-          border = "rounded",
-          position = "bottom",
-          margin = { 1, 0, 1, 0 },
-          padding = { 2, 2, 2, 2 },
-          relative = "editor",
-        },
-        layout = {
-          height = { min = 4, max = 25 },
-          width = { min = 20, max = 50 },
-          spacing = 3,
-          align = "left",
-        },
-        icons = {
-          breadcrumb = "»",
-          separator = "➜",
-          group = "+",
-        },
-        keys = {
-          scroll_down = "<c-d>",
-          scroll_up = "<c-u>",
-        },
-        show_help = true,
-        show_keys = true,
-        replace = {
-          ["<space>"] = "SPC",
-          ["<cr>"] = "RET",
-          ["<tab>"] = "TAB",
-          ["<esc>"] = "ESC",
-          ["<bs>"] = "BS",
-          ["<leader>"] = "LEADER",
-        },
-      })
+    keys = { "<leader>", "<c-r>", "<c-w>", '"', "'", "`", "c", "v", "g" },
+    init = function()
+      require("core.utils").load_mappings "whichkey"
     end,
+    cmd = "WhichKey",
+    config = function(_, opts)
+      require("which-key").setup(opts)
+    end,
+    opts = {
+      plugins = {
+        marks = true,
+        registers = true,
+        spelling = {
+          enabled = true,
+          suggestions = 20,
+        },
+      },
+      triggers = { "auto" },
+      win = {
+        border = "rounded",
+        position = "bottom",
+        margin = { 1, 0, 1, 0 },
+        padding = { 2, 2, 2, 2 },
+        relative = "editor",
+      },
+      layout = {
+        height = { min = 4, max = 25 },
+        width = { min = 20, max = 50 },
+        spacing = 3,
+        align = "left",
+      },
+      icons = {
+        breadcrumb = "»",
+        separator = "➜",
+        group = "+",
+      },
+      keys = {
+        scroll_down = "<c-d>",
+        scroll_up = "<c-u>",
+      },
+      show_help = true,
+      show_keys = true,
+      replace = {
+        ["<space>"] = "SPC",
+        ["<cr>"] = "RET",
+        ["<tab>"] = "TAB",
+        ["<esc>"] = "ESC",
+        ["<bs>"] = "BS",
+        ["<leader>"] = "LEADER",
+      },
+    },
   },
   
   -- Mason (LSP installer)
@@ -247,9 +264,13 @@ require("lazy").setup({
   -- LSP config
   {
     "neovim/nvim-lspconfig",
+    event = "User FilePost",
     dependencies = {
       "williamboman/mason-lspconfig.nvim",
     },
+    init = function()
+      require("core.utils").load_mappings "lspconfig"
+    end,
     config = function()
       local lspconfig = require("lspconfig")
       
@@ -423,4 +444,8 @@ require("lazy").setup({
       })
     end,
   },
-})
+}
+
+local config = require("core.utils").load_config()
+
+require("lazy").setup(default_plugins, config.lazy_nvim)
