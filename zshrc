@@ -65,8 +65,8 @@ fi
 alias l='ls'
 alias ll='ls -lha'
 alias suod='sudo'
-alias grep='rg
-'
+alias grep='rg'
+
 grep --color=auto < /dev/null &>/dev/null && alias grep='grep --color=auto'
 xdg-open --version &>/dev/null && alias open='xdg-open'
 
@@ -91,6 +91,19 @@ alias bubu="brew update && brew upgrade"
 # Configuration editing
 alias zcf="vim ~/.zshrc"
 alias zs="source ~/.zshrc"
+
+# git aliases
+alias ga='git add . --all'
+alias gb='git branch'
+alias gcl='git clone'
+alias gc='git commit -am'
+alias gco='git checkout'
+alias gd="git diff ':!*lock'"
+alias gi='git init'
+alias gl='git log'
+alias gp='git push origin HEAD'
+alias gs='git status'
+alias gu='git pull' # gu = git update
 
 # =============================================================================
 # Key Bindings
