@@ -39,9 +39,27 @@
 
 ## Алиасы
 
+### Git:
+- `ga` - git add . --all
+- `gc` - git commit -am
+- `gco` - git checkout
+- `gp` - git push origin HEAD
+- `gs` - git status
+- `gu` - git pull
+
+### Система:
 - `gl` - git log с графиком
 - `slf` - swiftlint --fix
 - `cleands` - удаление .DS_Store
 - `bubu` - brew update && upgrade
-- `cls` - полная очистка терминала
 - `zcf` - редактирование .zshrc
+- `zs` - source ~/.zshrc
+
+## Обновление
+
+```bash
+cd ~/.dotfiles
+git add .
+git commit -m "Update"
+git push
+```

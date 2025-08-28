@@ -1,23 +1,23 @@
-# =============================================================================
+# ==================
 # ZSH Configuration
-# =============================================================================
+# ==================
 
-# =============================================================================
+# =======================
 # Oh My Zsh Configuration
-# =============================================================================
+# =======================
 export ZSH="$HOME/.oh-my-zsh"
 ENABLE_CORRECTION="true"
 COMPLETION_WAITING_DOTS="true"
 plugins=(git fzf-docker)
 
-# =============================================================================
+# ==============
 # Load Oh My Zsh
-# =============================================================================
+# ==============
 source $ZSH/oh-my-zsh.sh
 
-# =============================================================================
+# ==================
 # Shell Enhancements
-# =============================================================================
+# ==================
 # Oh My Posh prompt
 eval "$(oh-my-posh init zsh --config $HOME/.config/ohmyposh/base.toml)"
 
@@ -27,9 +27,9 @@ eval "$(zoxide init zsh)"
 # FZF Git integration
 source /usr/local/bin/fzf-git
 
-# =============================================================================
+# =================
 # FZF Configuration
-# =============================================================================
+# =================
 eval "$(fzf --zsh)"
 
 export FZF_DEFAULT_COMMAND="fd --hidden --strip-cwd-prefix --exclude .git"
@@ -44,29 +44,31 @@ _fzf_compgen_dir() {
   fd --hidden --exclude .git --type=d . "$1"
 }
 
-# =============================================================================
+# ==================
 # Python Environment
-# =============================================================================
+# ==================
 eval "$(pyenv init --path)"
 eval "$(pyenv init -)"
 
-# =============================================================================
+# ==============
 # Editor Aliases
-# =============================================================================
+# ==============
 if [[ -z $SSH_CONNECTION ]]; then
   alias vim=nvim
   alias v=nvim
 fi
 
-# =============================================================================
+# ============
 # User Aliases
-# =============================================================================
+# ============
 
+# Basic aliases
 alias l='ls'
 alias ll='ls -lha'
 alias suod='sudo'
 alias grep='rg'
 
+# Color support
 grep --color=auto < /dev/null &>/dev/null && alias grep='grep --color=auto'
 xdg-open --version &>/dev/null && alias open='xdg-open'
 
@@ -92,7 +94,7 @@ alias bubu="brew update && brew upgrade"
 alias zcf="vim ~/.zshrc"
 alias zs="source ~/.zshrc"
 
-# git aliases
+# Git aliases
 alias ga='git add . --all'
 alias gb='git branch'
 alias gcl='git clone'
@@ -105,9 +107,9 @@ alias gp='git push origin HEAD'
 alias gs='git status'
 alias gu='git pull' # gu = git update
 
-# =============================================================================
+# ============
 # Key Bindings
-# =============================================================================
+# ============
 function clear-scrollback-buffer {
   clear && printf '\e[3J'
   zle && zle .reset-prompt && zle -R
