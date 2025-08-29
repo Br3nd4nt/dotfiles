@@ -13,9 +13,16 @@ local g = vim.g
 g.loaded_netrw = 1
 g.loaded_netrwPlugin = 1
 
--- Set leader key
+-- Set leader key (ensure this is set early)
 g.mapleader = " "
 g.maplocalleader = " "
+
+-- Force leader key to be space
+vim.keymap.set("n", "<Space>", "<Nop>", { noremap = true, silent = true })
+vim.keymap.set("v", "<Space>", "<Nop>", { noremap = true, silent = true })
+vim.keymap.set("i", "<Space>", "<Nop>", { noremap = true, silent = true })
+
+
 
 -- =============================================================================
 -- Editor Options
@@ -213,6 +220,12 @@ vim.api.nvim_create_user_command("TestWhichKey", function()
   else
     vim.notify("Which-key not available", vim.log.levels.ERROR)
   end
+end, {})
+
+-- Test leader key command
+vim.api.nvim_create_user_command("TestLeader", function()
+  vim.notify("Leader key: '" .. (vim.g.mapleader or "not set") .. "'", vim.log.levels.INFO)
+  vim.notify("Local leader key: '" .. (vim.g.maplocalleader or "not set") .. "'", vim.log.levels.INFO)
 end, {})
 
 -- Debug which-key command

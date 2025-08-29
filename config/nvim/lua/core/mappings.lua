@@ -26,6 +26,11 @@ M.general = {
     -- LSP
     ["gd"] = { "<cmd>lua vim.lsp.buf.definition()<cr>", "Go to Definition" },
     ["K"] = { "<cmd>lua vim.lsp.buf.hover()<cr>", "Hover Documentation" },
+    
+    -- Basic operations
+    ["<leader>s"] = { "<cmd> w <CR>", "Save file" },
+    ["<leader>q"] = { "<cmd> q <CR>", "Quit" },
+    ["<leader>nh"] = { "<cmd> noh <CR>", "Clear highlights" },
   },
 
   v = {
@@ -42,8 +47,9 @@ M.general = {
 }
 
 M.telescope = {
-  plugin = true,
-
+  -- Lazy load telescope mappings
+  lazy = true,
+  
   n = {
     -- find
     ["<leader>ff"] = { "<cmd> Telescope find_files <cr>", "Find files" },
@@ -69,7 +75,6 @@ M.telescope = {
 }
 
 M.nvimtree = {
-  plugin = true,
 
   n = {
     -- toggle
@@ -80,28 +85,40 @@ M.nvimtree = {
   },
 }
 
-M.whichkey = {
-  plugin = true,
+M.windows = {
 
   n = {
-    ["<leader>wK"] = {
-      function()
-        vim.cmd "WhichKey"
-      end,
-      "Which-key all keymaps",
-    },
-    ["<leader>wk"] = {
-      function()
-        local input = vim.fn.input "WhichKey: "
-        vim.cmd("WhichKey " .. input)
-      end,
-      "Which-key query lookup",
-    },
+    -- split management
+    ["<leader>sv"] = { "<C-w>v", "Split vertically" },
+    ["<leader>sh"] = { "<C-w>s", "Split horizontally" },
+    ["<leader>se"] = { "<C-w>=", "Equalize windows" },
+    ["<leader>sx"] = { "<cmd> close <CR>", "Close window" },
+  },
+}
+
+
+
+M.code = {
+
+  n = {
+    -- code actions
+    ["<leader>ca"] = { "<cmd>lua vim.lsp.buf.code_action()<cr>", "Code Action" },
+    ["<leader>cr"] = { "<cmd>lua vim.lsp.buf.rename()<cr>", "Rename" },
+    ["<leader>cf"] = { "<cmd>lua vim.lsp.buf.format()<cr>", "Format" },
+  },
+}
+
+M.diagnostics = {
+
+  n = {
+    -- diagnostics
+    ["<leader>ds"] = { "<cmd>lua vim.diagnostic.open_float()<cr>", "Show Diagnostics" },
+    ["<leader>dn"] = { "<cmd>lua vim.diagnostic.goto_next()<cr>", "Next Diagnostic" },
+    ["<leader>dp"] = { "<cmd>lua vim.diagnostic.goto_prev()<cr>", "Previous Diagnostic" },
   },
 }
 
 M.lspconfig = {
-  plugin = true,
 
   -- See `<cmd> :help vim.lsp.*` for documentation on any of the below functions
 
@@ -148,13 +165,6 @@ M.lspconfig = {
       "Goto prev",
     },
 
-    ["<leader>q"] = {
-      function()
-        vim.diagnostic.setloclist()
-      end,
-      "Diagnostic setloclist",
-    },
-
     ["<leader>wa"] = {
       function()
         vim.lsp.buf.add_workspace_folder()
@@ -183,6 +193,18 @@ M.lspconfig = {
         vim.lsp.buf.code_action()
       end,
       "LSP code action",
+    },
+  },
+}
+
+M.whichkey = {
+
+  n = {
+    ["<Space>"] = {
+      function()
+        require("which-key").show("", { mode = "n" })
+      end,
+      "Show which-key root menu",
     },
   },
 }

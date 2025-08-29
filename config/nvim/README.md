@@ -11,7 +11,7 @@ This directory contains the Neovim configuration for the dotfiles setup.
 - **Syntax Highlighting**: Treesitter
 - **Git Integration**: Gitsigns
 - **File Explorer**: NERDTree
-- **Keymaps**: Which-key for discoverable keymaps
+- **Keymaps**: Organized keymaps for easy discovery
 
 ## Setup
 
@@ -69,25 +69,45 @@ If you see warnings about LuaRocks or Lua 5.1 not being installed:
 
 ### Leader Key: `<Space>`
 
+#### File Operations
 - `ff` - Find files (Telescope)
-- `fg` - Live grep (Telescope)
+- `fa` - Find all files (including hidden)
+- `fw` - Live grep (Telescope)
 - `fb` - Find buffers (Telescope)
 - `fh` - Help tags (Telescope)
+- `fo` - Find old files (Telescope)
+- `fz` - Find in current buffer (Telescope)
+
+#### Explorer & Windows
 - `ee` - Toggle NERDTree
-- `ef` - Find in NERDTree
+- `ef` - Focus NERDTree
 - `sv` - Split vertically
 - `sh` - Split horizontally
 - `se` - Equalize windows
 - `sx` - Close window
+
+#### Basic Operations
 - `w` - Save file
 - `q` - Quit
 - `nh` - Clear highlight
+
+#### Code & LSP
 - `ca` - Code action
-- `crn` - Rename
+- `cr` - Rename
 - `cf` - Format
+- `gd` - Go to definition
+- `K` - Hover documentation
+
+#### Diagnostics
 - `ds` - Show diagnostics
 - `dn` - Next diagnostic
 - `dp` - Previous diagnostic
+
+#### Git
+- `cm` - Git commits (Telescope)
+- `gt` - Git status (Telescope)
+
+
 
 ### LSP Keymaps
 
@@ -107,8 +127,7 @@ If you see warnings about LuaRocks or Lua 5.1 not being installed:
 - `:LSPInstall` - Install LSP servers
 - `:MasonStatus` - Check Mason status
 - `:CleanInstall` - Clean and reinstall plugins
-- `:TestWhichKey` - Test which-key functionality
-- `:DebugWhichKey` - Debug which-key mappings
+
 
 ## Configuration Files
 
@@ -130,11 +149,10 @@ If you see warnings about LuaRocks or Lua 5.1 not being installed:
 
 ## Recent Improvements
 
-- ✅ **Lazy loading which-key**: Implemented efficient lazy loading pattern
 - ✅ **Centralized mappings**: All keymaps managed through core.mappings module
 - ✅ **Eliminated conflicts**: Removed duplicate keymap registrations that caused overlapping warnings
 - ✅ **LuaRocks disabled**: Prevents installation issues and warnings
-- ✅ **Clean health checks**: No more which-key or overlapping keymap warnings
+- ✅ **Clean health checks**: No more overlapping keymap warnings
 - ✅ **Performance optimized**: Only loads plugins when needed
 - ✅ **Better organization**: Separated mappings, utils, and config into modules
 - ✅ **NvChad-style structure**: Using proven patterns for plugin management
@@ -145,7 +163,6 @@ If you see warnings about LuaRocks or Lua 5.1 not being installed:
 - All plugins are managed through Lazy.nvim with lazy loading
 - LSP servers are managed through Mason
 - Treesitter parsers are installed on-demand
-- Which-key uses lazy loading pattern for better performance
 - Keymaps are centralized in core.mappings module and loaded by plugins
 - All plugins only load when their specific keys/commands are triggered
 - Configuration follows NvChad-style modular structure for better organization

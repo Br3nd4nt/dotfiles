@@ -104,6 +104,7 @@ local default_plugins = {
     },
     cmd = "Telescope",
     init = function()
+      -- Load telescope mappings when telescope is needed
       require("core.utils").load_mappings "telescope"
     end,
     config = function()
@@ -160,69 +161,9 @@ local default_plugins = {
     end,
   },
   
-  -- Mini Icons (required by which-key)
-  {
-    "echasnovski/mini.icons",
-    config = function()
-      require("mini.icons").setup()
-    end,
-  },
 
-  -- Only load whichkey after all the gui
-  {
-    "folke/which-key.nvim",
-    keys = { "<leader>", "<c-r>", "<c-w>", '"', "'", "`", "c", "v", "g" },
-    init = function()
-      require("core.utils").load_mappings "whichkey"
-    end,
-    cmd = "WhichKey",
-    config = function(_, opts)
-      require("which-key").setup(opts)
-    end,
-    opts = {
-      plugins = {
-        marks = true,
-        registers = true,
-        spelling = {
-          enabled = true,
-          suggestions = 20,
-        },
-      },
-      triggers = { "auto" },
-      win = {
-        border = "rounded",
-        position = "bottom",
-        margin = { 1, 0, 1, 0 },
-        padding = { 2, 2, 2, 2 },
-        relative = "editor",
-      },
-      layout = {
-        height = { min = 4, max = 25 },
-        width = { min = 20, max = 50 },
-        spacing = 3,
-        align = "left",
-      },
-      icons = {
-        breadcrumb = "»",
-        separator = "➜",
-        group = "+",
-      },
-      keys = {
-        scroll_down = "<c-d>",
-        scroll_up = "<c-u>",
-      },
-      show_help = true,
-      show_keys = true,
-      replace = {
-        ["<space>"] = "SPC",
-        ["<cr>"] = "RET",
-        ["<tab>"] = "TAB",
-        ["<esc>"] = "ESC",
-        ["<bs>"] = "BS",
-        ["<leader>"] = "LEADER",
-      },
-    },
-  },
+
+
   
   -- Mason (LSP installer)
   {
@@ -442,6 +383,41 @@ local default_plugins = {
           priority = 500,
         },
       })
+    end,
+  },
+
+
+
+  -- Only load whichkey after all the gui
+  {
+    "folke/which-key.nvim",
+    event = "VeryLazy",
+    init = function()
+      -- Only load which-key mappings, not all mappings
+      require("core.utils").load_mappings "whichkey"
+    end,
+    cmd = "WhichKey",
+    opts = {
+      plugins = {
+        marks = true,
+        registers = true,
+        spelling = {
+          enabled = true,
+          suggestions = 20,
+        },
+        presets = {
+          operators = true,
+          motions = true,
+          text_objects = true,
+          windows = true,
+          nav = true,
+          z = true,
+          g = true,
+        },
+      },
+    },
+    config = function(_, opts)
+      require("which-key").setup(opts)
     end,
   },
 }

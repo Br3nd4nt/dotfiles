@@ -9,11 +9,12 @@ end
 M.load_mappings = function(section, mapping_opt)
   vim.schedule(function()
     local function set_section_map(section_values)
-      if section_values.plugin then
+      -- Skip lazy sections unless explicitly requested
+      if section_values.lazy and section ~= section_values.lazy then
         return
       end
 
-      section_values.plugin = nil
+      section_values.lazy = nil
 
       for mode, mode_values in pairs(section_values) do
         local default_opts = merge_tb("force", { mode = mode }, mapping_opt or {})
