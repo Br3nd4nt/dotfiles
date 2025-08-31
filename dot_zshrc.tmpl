@@ -21,28 +21,38 @@ plugins=(git fzf-docker)
 # ==============
 # Load Oh My Zsh
 # ==============
-source $ZSH/oh-my-posh.sh
+source $ZSH/oh-my-zsh.sh
 
 # ==================
 # Shell Enhancements
 # ==================
-# Oh My Posh prompt
-eval "$(oh-my-posh init zsh --config $HOME/.config/ohmyposh/base.toml)"
+# Oh My Posh prompt (only if installed)
+if command -v oh-my-posh &> /dev/null; then
+  eval "$(oh-my-posh init zsh --config $HOME/.config/ohmyposh/base.toml)"
+fi
 
 # Zoxide (smart cd)
-eval "$(zoxide init zsh)"
+if command -v zoxide &> /dev/null; then
+  eval "$(zoxide init zsh)"
+fi
 
 # FZF Git integration
 {{- if eq .chezmoi.os "darwin" }}
-source /usr/local/bin/fzf-git
+if [ -f /usr/local/bin/fzf-git ]; then
+  source /usr/local/bin/fzf-git
+fi
 {{- else if eq .chezmoi.os "linux" }}
-source ~/.local/bin/fzf-git
+if [ -f ~/.local/bin/fzf-git ]; then
+  source ~/.local/bin/fzf-git
+fi
 {{- end }}
 
 # =================
 # FZF Configuration
 # =================
-eval "$(fzf --zsh)"
+if command -v fzf &> /dev/null; then
+  eval "$(fzf --zsh)"
+fi
 
 export FZF_DEFAULT_COMMAND="fd --hidden --strip-cwd-prefix --exclude .git"
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
