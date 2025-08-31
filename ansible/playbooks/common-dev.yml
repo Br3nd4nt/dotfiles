@@ -1,0 +1,87 @@
+---
+- name: Install common development tools
+  tasks:
+    - name: Install Python development tools
+      block:
+        - name: Install pip packages
+          pip:
+            name:
+              - black
+              - flake8
+              - mypy
+              - pytest
+              - pre-commit
+            state: present
+            user: "{{ user }}"
+          when: ansible_os_family != "Darwin"
+        
+        - name: Install pip packages via Homebrew on macOS
+          homebrew:
+            name:
+              - python-black
+              - python-flake8
+              - python-mypy
+              - python-pytest
+              - pre-commit
+            state: present
+          when: ansible_os_family == "Darwin"
+      tags: python
+    
+    - name: Install Node.js development tools
+      block:
+        - name: Check if Node.js is available
+          command: node --version
+          register: node_check
+          failed_when: false
+          changed_when: false
+        
+        - name: Install Node.js packages
+          npm:
+            name:
+              - -g
+              - typescript
+              - eslint
+              - prettier
+              - yarn
+            state: present
+          when: node_check.rc == 0
+      tags: nodejs
+    
+    - name: Install Go development tools
+      block:
+        - name: Check if Go is available
+          command: go version
+          register: go_check
+          failed_when: false
+          changed_when: false
+        
+        - name: Install Go tools
+          shell: go install golang.org/x/tools/cmd/goimports@latest
+          when: go_check.rc == 0
+          become: false
+          environment:
+            GOPATH: "{{ home_dir }}/go"
+            PATH: "{{ home_dir }}/go/bin:{{ ansible_env.PATH }}"
+        
+        - name: Install Go tools
+          shell: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+          when: go_check.rc == 0
+          become: false
+          environment:
+            GOPATH: "{{ home_dir }}/go"
+            PATH: "{{ home_dir }}/go/bin:{{ ansible_env.PATH }}"
+      tags: golang
+    
+    - name: Install Rust development tools
+      block:
+        - name: Check if Rust is available
+          command: rustc --version
+          register: rust_check
+          failed_when: false
+          changed_when: false
+        
+        - name: Install Rust tools
+          shell: cargo install rustfmt clippy
+          when: rust_check.rc == 0
+          become: false
+      tags: rust

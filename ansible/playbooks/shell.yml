@@ -1,0 +1,82 @@
+---
+- name: Configure shell environment
+  tasks:
+    - name: Create necessary directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+        owner: "{{ user }}"
+      loop:
+        - "{{ home_dir }}/.config"
+        - "{{ home_dir }}/.config/htop"
+        - "{{ home_dir }}/.config/ghostty"
+        - "{{ home_dir }}/.config/nvim"
+        - "{{ home_dir }}/.config/ohmyposh"
+        - "{{ home_dir }}/.local/bin"
+        - "{{ home_dir }}/.ssh"
+      tags: directories
+    
+    - name: Download fzf-git script
+      block:
+        - name: Check if fzf-git exists
+          stat:
+            path: "{{ item }}"
+          register: fzf_git_check
+          loop:
+            - /usr/local/bin/fzf-git
+            - /usr/bin/fzf-git
+            - "{{ home_dir }}/.local/bin/fzf-git"
+        
+        - name: Download fzf-git script
+          get_url:
+            url: https://raw.githubusercontent.com/junegunn/fzf-git.sh/main/fzf-git.sh
+            dest: "{{ home_dir }}/.local/bin/fzf-git"
+            mode: '0755'
+            owner: "{{ user }}"
+          when: not fzf_git_check.results | selectattr('stat.exists', 'equalto', true) | list | length > 0
+      tags: fzf-git
+    
+    - name: Set up shell configuration files
+      template:
+        src: "{{ dotfiles_dir }}/{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: "{{ user }}"
+        mode: '0644'
+        backup: yes
+      loop:
+        - { src: 'zshrc.tmpl', dest: '{{ home_dir }}/.zshrc' }
+        - { src: 'zprofile', dest: '{{ home_dir }}/.zprofile' }
+        - { src: 'gitconfig', dest: '{{ home_dir }}/.gitconfig' }
+        - { src: 'gitignore_global', dest: '{{ home_dir }}/.gitignore_global' }
+      tags: shell-config
+    
+    - name: Set up application configuration files
+      template:
+        src: "{{ dotfiles_dir }}/{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: "{{ user }}"
+        mode: '0644'
+        backup: yes
+      loop:
+        - { src: 'config/htop/htoprc', dest: '{{ home_dir }}/.config/htop/htoprc' }
+        - { src: 'config/ghostty/config', dest: '{{ home_dir }}/.config/ghostty/config' }
+        - { src: 'config/ohmyposh/base.toml', dest: '{{ home_dir }}/.config/ohmyposh/base.toml' }
+      tags: app-config
+    
+    - name: Set up Neovim configuration
+      block:
+        - name: Check if Neovim config directory exists
+          stat:
+            path: "{{ dotfiles_dir }}/config/nvim"
+          register: nvim_check
+        
+        - name: Copy Neovim configuration
+          synchronize:
+            src: "{{ dotfiles_dir }}/config/nvim/"
+            dest: "{{ home_dir }}/.config/nvim/"
+            recursive: yes
+            owner: "{{ user }}"
+            group: "{{ user }}"
+          when: nvim_check.stat.exists
+      tags: neovim

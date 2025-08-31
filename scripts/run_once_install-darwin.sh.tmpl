@@ -1,0 +1,76 @@
+#!/bin/bash
+# Chezmoi run_once script for macOS - runs only once when dotfiles are first applied
+
+echo "Installing dotfiles for macOS ({{ .chezmoi.hostname }})..."
+
+# Install Homebrew if not present
+if ! command -v brew &> /dev/null; then
+    echo "Installing Homebrew..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    
+    # Add Homebrew to PATH for this session
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+
+# Install Oh My Zsh if not present
+if [ ! -d "$HOME/.oh-my-zsh" ]; then
+    echo "Installing Oh My Zsh..."
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+fi
+
+# Install Oh My Posh if not present
+if ! command -v oh-my-posh &> /dev/null; then
+    echo "Installing Oh My Posh..."
+    brew install jandedobbeleer/oh-my-posh/oh-my-posh
+fi
+
+# Install Zoxide if not present
+if ! command -v zoxide &> /dev/null; then
+    echo "Installing Zoxide..."
+    brew install zoxide
+fi
+
+# Install FZF if not present
+if ! command -v fzf &> /dev/null; then
+    echo "Installing FZF..."
+    brew install fzf
+fi
+
+# Install fd if not present
+if ! command -v fd &> /dev/null; then
+    echo "Installing fd..."
+    brew install fd
+fi
+
+# Install ripgrep if not present
+if ! command -v rg &> /dev/null; then
+    echo "Installing ripgrep..."
+    brew install ripgrep
+fi
+
+# Install pyenv if not present
+if ! command -v pyenv &> /dev/null; then
+    echo "Installing pyenv..."
+    brew install pyenv
+fi
+
+# Install Neovim if not present
+if ! command -v nvim &> /dev/null; then
+    echo "Installing Neovim..."
+    brew install neovim
+fi
+
+# Install Ghostty if not present
+if ! command -v ghostty &> /dev/null; then
+    echo "Installing Ghostty..."
+    brew install --cask ghostty
+fi
+
+# Install Ansible if not present
+if ! command -v ansible &> /dev/null; then
+    echo "Installing Ansible..."
+    brew install ansible
+fi
+
+echo "macOS dotfiles installation complete for {{ .chezmoi.hostname }}!"
+echo "Next: Run 'ansible-playbook {{ .chezmoi.sourceDir }}/ansible/playbooks/main.yml' to configure your system"

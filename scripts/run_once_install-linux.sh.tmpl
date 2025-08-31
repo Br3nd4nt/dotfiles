@@ -1,0 +1,113 @@
+#!/bin/bash
+# Chezmoi run_once script for Linux - runs only once when dotfiles are first applied
+
+echo "Installing dotfiles for Linux ({{ .chezmoi.hostname }})..."
+
+# Detect package manager
+if command -v apt &> /dev/null; then
+    PKG_MANAGER="apt"
+    UPDATE_CMD="sudo apt update"
+    INSTALL_CMD="sudo apt install -y"
+elif command -v dnf &> /dev/null; then
+    PKG_MANAGER="dnf"
+    UPDATE_CMD="sudo dnf update"
+    INSTALL_CMD="sudo dnf install -y"
+elif command -v pacman &> /dev/null; then
+    PKG_MANAGER="pacman"
+    UPDATE_CMD="sudo pacman -Sy"
+    INSTALL_CMD="sudo pacman -S --noconfirm"
+else
+    echo "Unsupported package manager. Please install dependencies manually."
+    exit 1
+fi
+
+echo "Using package manager: $PKG_MANAGER"
+
+# Update package lists
+echo "Updating package lists..."
+$UPDATE_CMD
+
+# Install basic dependencies
+echo "Installing basic dependencies..."
+$INSTALL_CMD git curl wget zsh
+
+# Install Oh My Zsh if not present
+if [ ! -d "$HOME/.oh-my-zsh" ]; then
+    echo "Installing Oh My Zsh..."
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+fi
+
+# Install Oh My Posh if not present
+if ! command -v oh-my-posh &> /dev/null; then
+    echo "Installing Oh My Posh..."
+    if [ "$PKG_MANAGER" = "apt" ]; then
+        wget https://github.com/JanDeDobbeleer/oh-my-posh/releases/latest/download/posh-linux-amd64 -O /usr/local/bin/oh-my-posh
+        sudo chmod +x /usr/local/bin/oh-my-posh
+    elif [ "$PKG_MANAGER" = "dnf" ]; then
+        $INSTALL_CMD oh-my-posh
+    elif [ "$PKG_MANAGER" = "pacman" ]; then
+        $INSTALL_CMD oh-my-posh
+    fi
+fi
+
+# Install Zoxide if not present
+if ! command -v zoxide &> /dev/null; then
+    echo "Installing Zoxide..."
+    curl -sS https://webinstall.dev/zoxide | bash
+fi
+
+# Install FZF if not present
+if ! command -v fzf &> /dev/null; then
+    echo "Installing FZF..."
+    if [ "$PKG_MANAGER" = "apt" ]; then
+        $INSTALL_CMD fzf
+    elif [ "$PKG_MANAGER" = "dnf" ]; then
+        $INSTALL_CMD fzf
+    elif [ "$PKG_MANAGER" = "pacman" ]; then
+        $INSTALL_CMD fzf
+    fi
+fi
+
+# Install fd if not present
+if ! command -v fd &> /dev/null; then
+    echo "Installing fd..."
+    if [ "$PKG_MANAGER" = "apt" ]; then
+        $INSTALL_CMD fd-find
+    elif [ "$PKG_MANAGER" = "dnf" ]; then
+        $INSTALL_CMD fd-find
+    elif [ "$PKG_MANAGER" = "pacman" ]; then
+        $INSTALL_CMD fd
+    fi
+fi
+
+# Install ripgrep if not present
+if ! command -v rg &> /dev/null; then
+    echo "Installing ripgrep..."
+    if [ "$PKG_MANAGER" = "apt" ]; then
+        $INSTALL_CMD ripgrep
+    elif [ "$PKG_MANAGER" = "dnf" ]; then
+        $INSTALL_CMD ripgrep
+    elif [ "$PKG_MANAGER" = "pacman" ]; then
+        $INSTALL_CMD ripgrep
+    fi
+fi
+
+# Install pyenv if not present
+if ! command -v pyenv &> /dev/null; then
+    echo "Installing pyenv..."
+    curl https://pyenv.run | bash
+fi
+
+# Install Neovim if not present
+if ! command -v nvim &> /dev/null; then
+    echo "Installing Neovim..."
+    if [ "$PKG_MANAGER" = "apt" ]; then
+        $INSTALL_CMD neovim
+    elif [ "$PKG_MANAGER" = "dnf" ]; then
+        $INSTALL_CMD neovim
+    elif [ "$PKG_MANAGER" = "pacman" ]; then
+        $INSTALL_CMD neovim
+    fi
+fi
+
+echo "Linux dotfiles installation complete for {{ .chezmoi.hostname }}!"

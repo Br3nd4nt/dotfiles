@@ -5,8 +5,10 @@
 # =======================
 # Homebrew Configuration
 # =======================
-
+{{- if eq .chezmoi.os "darwin" }}
 export HOMEBREW_AUTO_UPDATE_SECS=604800
+export PATH="/opt/homebrew/bin:$PATH"
+{{- end }}
 
 # =======================
 # Oh My Zsh Configuration
@@ -19,7 +21,7 @@ plugins=(git fzf-docker)
 # ==============
 # Load Oh My Zsh
 # ==============
-source $ZSH/oh-my-zsh.sh
+source $ZSH/oh-my-posh.sh
 
 # ==================
 # Shell Enhancements
@@ -31,7 +33,11 @@ eval "$(oh-my-posh init zsh --config $HOME/.config/ohmyposh/base.toml)"
 eval "$(zoxide init zsh)"
 
 # FZF Git integration
+{{- if eq .chezmoi.os "darwin" }}
 source /usr/local/bin/fzf-git
+{{- else if eq .chezmoi.os "linux" }}
+source ~/.local/bin/fzf-git
+{{- end }}
 
 # =================
 # FZF Configuration
@@ -49,12 +55,6 @@ _fzf_compgen_path() {
 _fzf_compgen_dir() {
   fd --hidden --exclude .git --type=d . "$1"
 }
-
-# ==================
-# Python Environment
-# ==================
-eval "$(pyenv init --path)"
-eval "$(pyenv init -)"
 
 # ==============
 # Editor Aliases
@@ -78,7 +78,9 @@ alias fman="compgen -c | fzf | xargs tldr"
 
 # Color support
 grep --color=auto < /dev/null &>/dev/null && alias grep='grep --color=auto'
+{{- if eq .chezmoi.os "linux" }}
 xdg-open --version &>/dev/null && alias open='xdg-open'
+{{- end }}
 
 # Enable color support of ls
 if ls --color=auto &>/dev/null; then
@@ -88,15 +90,24 @@ else
 fi
 
 # File management
+{{- if eq .chezmoi.os "darwin" }}
 alias cleands='find . -name ".DS_Store" -type f -delete'
+{{- end }}
 alias cd=z
 alias find=fd
+
 # Development tools
 alias gl="git log --graph --pretty=oneline --abbrev-commit"
+{{- if eq .chezmoi.os "darwin" }}
 alias slf="swiftlint --fix"
+{{- end }}
 
 # System utilities
+{{- if eq .chezmoi.os "darwin" }}
 alias bubu="brew update && brew upgrade"
+{{- else if eq .chezmoi.os "linux" }}
+alias bubu="sudo apt update && sudo apt upgrade"
+{{- end }}
 
 # Configuration editing
 alias zcf="vim ~/.zshrc"
@@ -125,3 +136,10 @@ function clear-scrollback-buffer {
 
 zle -N clear-scrollback-buffer
 bindkey '^L' clear-scrollback-buffer
+
+# ==================
+# Machine-specific configurations
+# ==================
+# Machine: {{ .chezmoi.hostname }}
+# User: {{ .chezmoi.username }}
+# OS: {{ .chezmoi.os }}
