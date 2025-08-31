@@ -415,6 +415,8 @@ local default_plugins = {
           g = true,
         },
       },
+      -- Add timeout to prevent space from being treated as leader immediately
+      timeout = 500,
     },
     config = function(_, opts)
       require("which-key").setup(opts)

@@ -3,6 +3,12 @@
 # ==================
 
 # =======================
+# Homebrew Configuration
+# =======================
+
+export HOMEBREW_AUTO_UPDATE_SECS=604800
+
+# =======================
 # Oh My Zsh Configuration
 # =======================
 export ZSH="$HOME/.oh-my-zsh"
@@ -67,6 +73,8 @@ alias l='ls'
 alias ll='ls -lha'
 alias suod='sudo'
 alias grep='rg'
+alias myip='curl ipv4.icanhazip.com'
+alias fman="compgen -c | fzf | xargs tldr"
 
 # Color support
 grep --color=auto < /dev/null &>/dev/null && alias grep='grep --color=auto'
@@ -82,7 +90,7 @@ fi
 # File management
 alias cleands='find . -name ".DS_Store" -type f -delete'
 alias cd=z
-
+alias find=fd
 # Development tools
 alias gl="git log --graph --pretty=oneline --abbrev-commit"
 alias slf="swiftlint --fix"
