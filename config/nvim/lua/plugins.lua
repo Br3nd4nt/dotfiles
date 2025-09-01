@@ -43,45 +43,45 @@ local default_plugins = {
       -- Function to detect if current colorscheme is light or dark
       local function is_light_colorscheme()
         local colors_name = vim.g.colors_name or ""
-        
+
         -- Common light colorschemes
         local light_patterns = {
           "day", "light", "latte", "dawn", "rose-pine-dawn", "catppuccin_latte",
           "PaperColor", "github", "gruvbox_light", "solarized8_light"
         }
-        
+
         for _, pattern in ipairs(light_patterns) do
           if colors_name:lower():match(pattern:lower()) then
             return true
           end
         end
-        
+
         -- Check background setting
         if vim.o.background == "light" then
           return true
         end
-        
+
         return false
       end
-      
+
       -- Function to update airline theme based on light/dark detection
       local function update_airline_theme()
         if not vim.g.loaded_airline then
           return
         end
-        
+
         local is_light = is_light_colorscheme()
         local airline_theme = is_light and "light" or "dark"
-        
+
         -- Set airline theme
         vim.g.airline_theme = airline_theme
-        
+
         -- Refresh airline
         pcall(function()
           vim.cmd("AirlineRefresh")
         end)
       end
-      
+
       -- Set initial airline configuration
       vim.g.airline_theme = "dark" -- default
       vim.g.airline_powerline_fonts = 1
@@ -89,7 +89,7 @@ local default_plugins = {
       vim.g.airline_showpaste = 1
       vim.g.airline_showcmd = 1
       vim.g.airline_showtabline = 1
-      
+
       -- Auto-update airline when colorscheme changes
       vim.api.nvim_create_autocmd("ColorScheme", {
         callback = function()
@@ -97,7 +97,7 @@ local default_plugins = {
           vim.defer_fn(update_airline_theme, 100)
         end,
       })
-      
+
       -- Initial update
       vim.defer_fn(update_airline_theme, 100)
     end,
@@ -187,9 +187,9 @@ local default_plugins = {
       vim.cmd.colorscheme "catppuccin"
     end,
   },
-  
 
-  
+
+
   -- Telescope (fuzzy finder)
   {
     "nvim-telescope/telescope.nvim",
@@ -219,7 +219,7 @@ local default_plugins = {
           },
         },
       })
-      
+
       -- Load builtin pickers
       require("telescope.builtin")
     end,
@@ -303,8 +303,8 @@ local default_plugins = {
 
   -- Terminal
   {
-    'akinsho/toggleterm.nvim', 
-    version = "*", 
+    'akinsho/toggleterm.nvim',
+    version = "*",
     lazy = false,
     init = function()
       require("core.utils").load_mappings "toggleterm"
@@ -350,7 +350,7 @@ local default_plugins = {
       })
     end,
   },
-  
+
   -- Comment
   {
     "numToStr/Comment.nvim",
@@ -358,7 +358,7 @@ local default_plugins = {
       require("Comment").setup()
     end,
   },
-  
+
   -- Surround
   {
     "kylechui/nvim-surround",
@@ -367,11 +367,11 @@ local default_plugins = {
       require("nvim-surround").setup()
     end,
   },
-  
 
 
 
-  
+
+
   -- Mason (LSP installer)
   {
     "williamboman/mason.nvim",
@@ -385,7 +385,7 @@ local default_plugins = {
       })
     end,
   },
-  
+
   -- Mason LSP config
   {
     "williamboman/mason-lspconfig.nvim",
@@ -410,7 +410,7 @@ local default_plugins = {
       })
     end,
   },
-  
+
   -- LSP config
   {
     "neovim/nvim-lspconfig",
@@ -439,7 +439,7 @@ local default_plugins = {
             },
           },
         },
-        
+
         -- Python
         pyright = {
           settings = {
@@ -450,7 +450,7 @@ local default_plugins = {
             },
           },
         },
-        
+
         -- JSON
         jsonls = {
           settings = {
@@ -459,7 +459,7 @@ local default_plugins = {
             },
           },
         },
-        
+
         -- YAML
         yamlls = {
           settings = {
@@ -471,7 +471,7 @@ local default_plugins = {
             },
           },
         },
-        
+
         -- Bash
         bashls = {
           settings = {
@@ -480,7 +480,7 @@ local default_plugins = {
             },
           },
         },
-        
+
         -- Docker
         dockerls = {
           settings = {
@@ -493,7 +493,7 @@ local default_plugins = {
             },
           },
         },
-        
+
         -- Markdown
         marksman = {},
 
@@ -523,7 +523,7 @@ local default_plugins = {
           end,
         },
       }
-      
+
       -- Setup each server with error handling
       for server_name, config in pairs(servers) do
         pcall(function()
@@ -534,7 +534,7 @@ local default_plugins = {
       end
     end,
   },
-  
+
   -- LSP keymaps
   {
     "folke/neodev.nvim",
@@ -542,7 +542,7 @@ local default_plugins = {
       require("neodev").setup()
     end,
   },
-  
+
   -- Treesitter (syntax highlighting)
   {
     "nvim-treesitter/nvim-treesitter",
@@ -572,12 +572,181 @@ local default_plugins = {
       })
     end,
   },
-  
+
   -- Auto pairs
   {
     "windwp/nvim-autopairs",
     config = function()
-      require("nvim-autopairs").setup()
+      local autopairs = require("nvim-autopairs")
+      autopairs.setup()
+      
+      -- Integrate with nvim-cmp
+      local cmp_autopairs = require("nvim-autopairs.completion.cmp")
+      local cmp = require("cmp")
+      cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())
+    end,
+  },
+
+  -- Autocompletion
+  {
+    "hrsh7th/nvim-cmp",
+    dependencies = {
+      "hrsh7th/cmp-nvim-lsp",
+      "hrsh7th/cmp-buffer",
+      "hrsh7th/cmp-path",
+      "hrsh7th/cmp-cmdline",
+      "L3MON4D3/LuaSnip",
+      "saadparwaiz1/cmp_luasnip",
+    },
+    config = function()
+      local cmp = require("cmp")
+      
+      cmp.setup({
+        snippet = {
+          expand = function(args)
+            require("luasnip").lsp_expand(args.body)
+          end,
+        },
+        mapping = {
+          ["<C-p>"] = cmp.mapping.select_prev_item(),
+          ["<C-n>"] = cmp.mapping.select_next_item(),
+          ["<C-b>"] = cmp.mapping(cmp.mapping.scroll_docs(-1), { "i", "c" }),
+          ["<C-f>"] = cmp.mapping(cmp.mapping.scroll_docs(1), { "i", "c" }),
+          ["<C-Space>"] = cmp.mapping(cmp.mapping.complete(), { "i", "c" }),
+          ["<C-y>"] = cmp.config.disable, -- Remove default mapping
+          ["<C-e>"] = cmp.mapping({
+            i = cmp.mapping.abort(),
+            c = cmp.mapping.close(),
+          }),
+          -- Tab to accept first completion
+          ["<Tab>"] = cmp.mapping(function(fallback)
+            if cmp.visible() then
+              cmp.select_next_item()
+            else
+              fallback()
+            end
+          end, { "i", "s" }),
+          ["<S-Tab>"] = cmp.mapping(function(fallback)
+            if cmp.visible() then
+              cmp.select_prev_item()
+            else
+              fallback()
+            end
+          end, { "i", "s" }),
+          ["<CR>"] = cmp.mapping.confirm({ select = true }),
+        },
+        sources = cmp.config.sources({
+          { name = "nvim_lsp" },
+          { name = "luasnip" },
+        }, {
+          { name = "buffer" },
+          { name = "path" },
+        }),
+        formatting = {
+          format = require("lspkind").cmp_format({
+            mode = "symbol_text",
+            maxwidth = 50,
+            ellipsis_char = "...",
+            before = function(entry, vim_item)
+              return vim_item
+            end,
+          }),
+        },
+        window = {
+          completion = cmp.config.window.bordered(),
+          documentation = cmp.config.window.bordered(),
+        },
+      })
+
+      -- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore)
+      cmp.setup.cmdline({ "/", "?" }, {
+        mapping = cmp.mapping.preset.cmdline(),
+        sources = {
+          { name = "buffer" },
+        },
+      })
+
+      -- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore)
+      cmp.setup.cmdline(":", {
+        mapping = cmp.mapping.preset.cmdline(),
+        sources = cmp.config.sources({
+          { name = "path" },
+        }, {
+          { name = "cmdline" },
+        }),
+      })
+    end,
+  },
+
+  -- LuaSnip
+  {
+    "L3MON4D3/LuaSnip",
+    build = "make install_jsregexp",
+    config = function()
+      require("luasnip").setup()
+    end,
+  },
+
+  -- VSCode-like inline completion
+  {
+    "stevearc/dressing.nvim",
+    config = function()
+      require("dressing").setup({
+        input = {
+          enabled = true,
+          default_prompt = "Input:",
+          win_options = {
+            winblend = 0,
+          },
+        },
+        select = {
+          enabled = true,
+          backend = { "telescope", "fzf", "builtin" },
+          builtin = {
+            win_options = {
+              winblend = 0,
+            },
+          },
+        },
+      })
+    end,
+  },
+
+  -- Enhanced completion with better UI
+  {
+    "onsails/lspkind.nvim",
+    config = function()
+      require("lspkind").init({
+        mode = "symbol_text",
+        preset = "codicons",
+        symbol_map = {
+          Text = "󰉿",
+          Method = "󰆧",
+          Function = "󰊕",
+          Constructor = "󰆧",
+          Field = "󰜢",
+          Variable = "󰀫",
+          Class = "󰠱",
+          Interface = "󰜢",
+          Module = "󰏗",
+          Property = "󰜢",
+          Unit = "󰑭",
+          Value = "󰎠",
+          Enum = "󰒻",
+          Keyword = "󰌋",
+          Snippet = "󰆐",
+          Color = "󰏘",
+          File = "󰈙",
+          Reference = "󰈇",
+          Folder = "󰉋",
+          EnumMember = "󰒻",
+          Constant = "󰏿",
+          Struct = "󰙅",
+          Event = "󰆧",
+          Operator = "󰆕",
+          TypeParameter = "󰊄",
+        },
+      })
     end,
   },
 
@@ -703,6 +872,9 @@ local default_plugins = {
               and not context.in_syntax_group("Comment")
           end
         end,
+        preselect = cmp.PreselectMode.Item,
+
+        preselect = true,
         completion = {
           completeopt = 'menu,menuone,noinsert',
         },
@@ -773,7 +945,7 @@ local default_plugins = {
               Operator = "󰆕",       -- Operator
               TypeParameter = "", -- TypeParameter
             }
-            
+
             -- Get icon from devicons for file-based completions
             local icon, hl_group
             if vim_item.kind == "File" then
@@ -787,23 +959,23 @@ local default_plugins = {
             else
               vim_item.kind = icons[vim_item.kind] or ""
             end
-            
+
             -- Enhanced menu labels with colors
             local menu_items = {
               nvim_lsp = "[LSP]",
-              luasnip = "[󰩫 Snippet]", 
+              luasnip = "[󰩫 Snippet]",
               buffer = "[󰯂 Buffer]",
               path = "[󰝰 Path]",
               cmdline = "[󰞷 CMD]",
             }
-            
+
             vim_item.menu = menu_items[entry.source.name] or string.format("[%s]", entry.source.name)
-            
+
             -- Truncate long items
             local label = vim_item.abbr
             local truncated_label = vim.fn.strchars(label) > 50 and vim.fn.strcharpart(label, 0, 50) .. "…" or label
             vim_item.abbr = truncated_label
-            
+
             return vim_item
           end,
         },
@@ -835,7 +1007,7 @@ local default_plugins = {
       cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())
     end,
   },
-  
+
   -- Git signs
   {
     "lewis6991/gitsigns.nvim",
@@ -843,7 +1015,7 @@ local default_plugins = {
       require("gitsigns").setup()
     end,
   },
-  
+
   -- Buffer line
   {
     "akinsho/bufferline.nvim",
@@ -859,7 +1031,7 @@ local default_plugins = {
       })
     end,
   },
-  
+
   -- Indent lines
   {
     "lukas-reineke/indent-blankline.nvim",
