@@ -1,0 +1,54 @@
+---
+- name: Configure Debian-based Linux system
+  tasks:
+    - name: Update package cache
+      apt:
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+      tags: packages
+    
+    - name: Install Debian packages
+      apt:
+        name:
+          - zoxide
+          - fzf
+          - fd-find
+          - ripgrep
+          - python3-pip
+          - neovim
+          - zsh
+          - curl
+          - git
+        state: present
+      when: ansible_os_family == "Debian"
+      tags: packages
+    
+    - name: Install Oh My Zsh if not present
+      block:
+        - name: Check if Oh My Zsh is installed
+          stat:
+            path: "{{ home_dir }}/.oh-my-zsh"
+          register: omz_check
+        
+        - name: Install Oh My Zsh
+          shell: sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+          when: not omz_check.stat.exists
+          become: false
+      tags: oh-my-zsh
+    
+    - name: Install Oh My Posh via Go
+      block:
+        - name: Check if Go is available
+          command: go version
+          register: go_check
+          failed_when: false
+          changed_when: false
+        
+        - name: Install Oh My Posh via Go
+          shell: go install github.com/jandedobbeleer/oh-my-posh@latest
+          when: go_check.rc == 0
+          become: false
+          environment:
+            GOPATH: "{{ home_dir }}/go"
+            PATH: "{{ home_dir }}/go/bin:{{ ansible_env.PATH }}"
+      tags: oh-my-posh

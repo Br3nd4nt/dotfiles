@@ -1,0 +1,108 @@
+---
+- name: Configure development tools
+  tasks:
+    - name: Configure Python environment
+      block:
+        - name: Create pyenv directory
+          file:
+            path: "{{ home_dir }}/.pyenv"
+            state: directory
+            owner: "{{ user }}"
+            mode: '0755'
+        
+        - name: Set up Python version
+          shell: pyenv install {{ dev.python_version | default('3.11') }} && pyenv global {{ dev.python_version | default('3.11') }}
+          when: dev.python_version is defined
+          become: false
+          environment:
+            PATH: "{{ home_dir }}/.pyenv/bin:{{ ansible_env.PATH }}"
+        
+        - name: Install Python packages
+          pip:
+            name:
+              - pip
+              - setuptools
+              - wheel
+            state: latest
+            user: "{{ user }}"
+      tags: python
+    
+    - name: Configure Node.js environment
+      block:
+        - name: Create nvm directory
+          file:
+            path: "{{ home_dir }}/.nvm"
+            state: directory
+            owner: "{{ user }}"
+            mode: '0755'
+          when: dev.use_nvm | default(false)
+        
+        - name: Install Node.js via nvm
+          shell: |
+            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+            source ~/.nvm/nvm.sh
+            nvm install {{ dev.node_version | default('18') }}
+            nvm use {{ dev.node_version | default('18') }}
+            nvm alias default {{ dev.node_version | default('18') }}
+          when: dev.use_nvm | default(false)
+          become: false
+          args:
+            executable: /bin/bash
+      tags: nodejs
+    
+    - name: Configure Go environment
+      block:
+        - name: Create Go directories
+          file:
+            path: "{{ item }}"
+            state: directory
+            owner: "{{ user }}"
+            mode: '0755'
+          loop:
+            - "{{ home_dir }}/go"
+            - "{{ home_dir }}/go/bin"
+            - "{{ home_dir }}/go/src"
+            - "{{ home_dir }}/go/pkg"
+          when: dev.use_gvm | default(false)
+        
+        - name: Install Go via gvm
+          shell: |
+            bash < <(curl -s -S -L https://raw.githubusercontent.com/moovweb/gvm/master/binscripts/gvm-installer)
+            source ~/.gvm/scripts/gvm
+            gvm install go{{ dev.go_version | default('1.21') }}
+            gvm use go{{ dev.go_version | default('1.21') }} --default
+          when: dev.use_gvm | default(false)
+          become: false
+          args:
+            executable: /bin/bash
+      tags: golang
+    
+    - name: Configure Git
+      block:
+        - name: Set Git user name
+          git_config:
+            name: user.name
+            value: "{{ user.name | default(user) }}"
+            scope: global
+          when: user.name is defined
+        
+        - name: Set Git user email
+          git_config:
+            name: user.email
+            value: "{{ user.email | default(user + '@example.com') }}"
+            scope: global
+          when: user.email is defined
+        
+        - name: Set Git editor
+          git_config:
+            name: core.editor
+            value: "{{ user.editor | default('nvim') }}"
+            scope: global
+          when: user.editor is defined
+        
+        - name: Set Git default branch
+          git_config:
+            name: init.defaultBranch
+            value: main
+            scope: global
+      tags: git

@@ -5,8 +5,10 @@
 # =======================
 # Homebrew Configuration
 # =======================
-
+{{- if eq .chezmoi.os "darwin" }}
 export HOMEBREW_AUTO_UPDATE_SECS=604800
+export PATH="/opt/homebrew/bin:$PATH"
+{{- end }}
 
 # =======================
 # Oh My Zsh Configuration
@@ -24,19 +26,33 @@ source $ZSH/oh-my-zsh.sh
 # ==================
 # Shell Enhancements
 # ==================
-# Oh My Posh prompt
-eval "$(oh-my-posh init zsh --config $HOME/.config/ohmyposh/base.toml)"
+# Oh My Posh prompt (only if installed)
+if command -v oh-my-posh &> /dev/null; then
+  eval "$(oh-my-posh init zsh --config $HOME/.config/ohmyposh/base.toml)"
+fi
 
 # Zoxide (smart cd)
-eval "$(zoxide init zsh)"
+if command -v zoxide &> /dev/null; then
+  eval "$(zoxide init zsh)"
+fi
 
 # FZF Git integration
-source /usr/local/bin/fzf-git
+{{- if eq .chezmoi.os "darwin" }}
+if [ -f /usr/local/bin/fzf-git ]; then
+  source /usr/local/bin/fzf-git
+fi
+{{- else if eq .chezmoi.os "linux" }}
+if [ -f ~/.local/bin/fzf-git ]; then
+  source ~/.local/bin/fzf-git
+fi
+{{- end }}
 
 # =================
 # FZF Configuration
 # =================
-eval "$(fzf --zsh)"
+if command -v fzf &> /dev/null; then
+  eval "$(fzf --zsh)"
+fi
 
 export FZF_DEFAULT_COMMAND="fd --hidden --strip-cwd-prefix --exclude .git"
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
@@ -49,12 +65,6 @@ _fzf_compgen_path() {
 _fzf_compgen_dir() {
   fd --hidden --exclude .git --type=d . "$1"
 }
-
-# ==================
-# Python Environment
-# ==================
-eval "$(pyenv init --path)"
-eval "$(pyenv init -)"
 
 # ==============
 # Editor Aliases
@@ -78,7 +88,9 @@ alias fman="compgen -c | fzf | xargs tldr"
 
 # Color support
 grep --color=auto < /dev/null &>/dev/null && alias grep='grep --color=auto'
+{{- if eq .chezmoi.os "linux" }}
 xdg-open --version &>/dev/null && alias open='xdg-open'
+{{- end }}
 
 # Enable color support of ls
 if ls --color=auto &>/dev/null; then
@@ -88,15 +100,24 @@ else
 fi
 
 # File management
+{{- if eq .chezmoi.os "darwin" }}
 alias cleands='find . -name ".DS_Store" -type f -delete'
+{{- end }}
 alias cd=z
 alias find=fd
+
 # Development tools
 alias gl="git log --graph --pretty=oneline --abbrev-commit"
+{{- if eq .chezmoi.os "darwin" }}
 alias slf="swiftlint --fix"
+{{- end }}
 
 # System utilities
+{{- if eq .chezmoi.os "darwin" }}
 alias bubu="brew update && brew upgrade"
+{{- else if eq .chezmoi.os "linux" }}
+alias bubu="sudo apt update && sudo apt upgrade"
+{{- end }}
 
 # Configuration editing
 alias zcf="vim ~/.zshrc"
@@ -125,3 +146,10 @@ function clear-scrollback-buffer {
 
 zle -N clear-scrollback-buffer
 bindkey '^L' clear-scrollback-buffer
+
+# ==================
+# Machine-specific configurations
+# ==================
+# Machine: {{ .chezmoi.hostname }}
+# User: {{ .chezmoi.username }}
+# OS: {{ .chezmoi.os }}

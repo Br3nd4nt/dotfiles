@@ -1,0 +1,104 @@
+# Chezmoi configuration for {{ .chezmoi.hostname }}
+# This file contains both core Chezmoi settings and machine-specific variables
+
+# ====================
+# Core Chezmoi Settings
+# ====================
+sourceDir: "{{ .chezmoi.sourceDir }}"
+destDir: "{{ .chezmoi.homeDir }}"
+data: true
+useBuiltinGit: true
+useBuiltinDiff: true
+useBuiltinAge: true
+mode: "file"
+color: "auto"
+interactive: true
+
+# ====================
+# Machine Information
+# ====================
+machine:
+  name: "{{ .chezmoi.hostname }}"
+  os: "{{ .chezmoi.os }}"
+  arch: "{{ .chezmoi.arch }}"
+  home: "{{ .chezmoi.homeDir }}"
+
+# ====================
+# User Preferences
+# ====================
+user:
+  name: "{{ .chezmoi.username }}"
+  email: "{{ .chezmoi.username }}@example.com"
+  editor: "nvim"
+  shell: "zsh"
+
+# ====================
+# Development Tools
+# ====================
+dev:
+  # Python
+  python_version: "3.11"
+  use_pyenv: true
+  
+  # Node.js
+  node_version: "18"
+  use_nvm: false
+  
+  # Go
+  go_version: "1.21"
+  use_gvm: false
+
+# ====================
+# Applications
+# ====================
+apps:
+  # Terminal
+  terminal: "ghostty"
+  
+  # Browser
+  browser: "safari"
+  
+  # File manager
+  file_manager: "finder"
+
+# ====================
+# Network
+# ====================
+network:
+  # Proxy settings (if needed)
+  use_proxy: false
+  proxy_host: ""
+  proxy_port: ""
+  
+  # VPN settings
+  use_vpn: false
+  vpn_interface: ""
+
+# ====================
+# Security
+# ====================
+security:
+  # GPG key
+  gpg_key: ""
+  
+  # SSH key
+  ssh_key: "~/.ssh/id_ed25519"
+  
+  # Age encryption
+  age_key: ""
+
+# ====================
+# Custom Aliases and Functions
+# ====================
+custom:
+  # Add your custom aliases here
+  aliases:
+    - name: "work"
+      command: "cd ~/work"
+    - name: "personal"
+      command: "cd ~/personal"
+  
+  # Add your custom functions here
+  functions:
+    - name: "backup"
+      command: "rsync -av --delete ~/Documents/ ~/Backups/Documents/"

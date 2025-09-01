@@ -1,0 +1,27 @@
+[user]
+	name = {{ .chezmoi.username }}
+	email = {{ .chezmoi.username }}@example.com
+
+[core]
+	editor = nvim
+	autocrlf = input
+	filemode = false
+
+[init]
+	defaultBranch = main
+
+[push]
+	default = simple
+	upstream = auto
+
+[pull]
+	rebase = true
+
+[alias]
+	st = status
+	co = checkout
+	br = branch
+	ci = commit
+	unstage = reset HEAD --
+	last = log -1 HEAD
+	visual = !gitk

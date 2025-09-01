@@ -1,0 +1,15 @@
+# ==================
+# ZProfile Configuration
+# ==================
+
+# This file is sourced for login shells
+
+# Set PATH for macOS
+{{- if eq .chezmoi.os "darwin" }}
+export PATH="/opt/homebrew/bin:$PATH"
+{{- end }}
+
+# Load Rust environment if available
+if [ -f "$HOME/.cargo/env" ]; then
+    source "$HOME/.cargo/env"
+fi

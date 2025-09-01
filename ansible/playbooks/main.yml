@@ -1,0 +1,27 @@
+---
+- name: Configure system with dotfiles
+  hosts: localhost
+  connection: local
+  gather_facts: true
+  
+  vars:
+    dotfiles_dir: "{{ ansible_env.HOME }}/.dotfiles"
+    user: "{{ ansible_user }}"
+    home_dir: "{{ ansible_env.HOME }}"
+  
+  tasks:
+    - name: Include OS-specific playbooks
+      include_tasks: "{{ ansible_os_family }}.yml"
+      when: ansible_os_family is defined
+    
+    - name: Install common development tools
+      include_tasks: common-dev.yml
+    
+    - name: Configure shell environment
+      include_tasks: shell.yml
+    
+    - name: Configure development tools
+      include_tasks: dev-tools.yml
+    
+    - name: Configure applications
+      include_tasks: applications.yml

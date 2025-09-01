@@ -1,141 +1,179 @@
-# Dotfiles 🚀
+# Dotfiles - Personal Cheatsheet
 
-Мои конфигурационные файлы для macOS.
+My dotfiles setup using Chezmoi + Ansible.
 
-## Что установлено
-
-- **ZSH** - с Oh My Zsh, FZF, Zoxide, Oh My Posh
-- **Neovim** - конфигурация с git submodules
-- **Git** - глобальные настройки
-- **FZF Git** - интеграция FZF с Git (системная утилита)
-- **htop** - конфигурация системного монитора
-
-## Поддерживаемые языки (LSP)
-
-- **Python** - pyright
-- **Lua** - lua_ls
-- **Docker** - dockerls
-- **Bash** - bashls
-- **Markdown** - marksman
-- **Swift** - sourcekit
-- **JSON** - jsonls
-- **YAML** - yamlls
-
-> 📖 **Памятка по Neovim**: [config/nvim/README.md](config/nvim/README.md)
-
-## Установка
+## Quick Install
 
 ```bash
-# Предварительный просмотр
-./install.sh
-
-# Установка
-./install.sh --install
-
-# Удаление (с восстановлением бэкапов)
-./install.sh --uninstall --confirm
+export GITHUB_USERNAME=br3nd4nt
+sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply $GITHUB_USERNAME
 ```
 
-## Горячие клавиши
+## Commands I Need to Remember
 
-### FZF Git:
-- `Ctrl+G Ctrl+F` - файлы
-- `Ctrl+G Ctrl+B` - ветки
-- `Ctrl+G Ctrl+T` - теги
-- `Ctrl+G Ctrl+H` - коммиты
-
-### FZF:
-- `Ctrl+T` - поиск файлов
-- `Ctrl+R` - история команд
-
-### Терминал:
-- `Ctrl+L` - полная очистка терминала
-
-### Neovim:
-- `<Space>ff` - поиск файлов
-- `<Space>fg` - поиск текста
-- `<Space>fb` - список буферов
-- `<Space>fh` - справка
-- `<Space>w` - сохранить
-- `<Space>q` - выйти
-- `<C-h/j/k/l>` - навигация по окнам
-
-### LSP (Language Server Protocol):
-- `gd` - определение функции
-- `gr` - ссылки
-- `K` - документация
-- `<Space>ca` - действия с кодом
-- `<Space>rn` - переименование
-- `<Space>f` - форматирование
-- `<Space>ds` - показать диагностику
-- `<Space>dn/dp` - следующая/предыдущая ошибка
-
-## Алиасы
-
-### Git:
-- `ga` - git add . --all
-- `gc` - git commit -am
-- `gco` - git checkout
-- `gp` - git push origin HEAD
-- `gs` - git status
-- `gu` - git pull
-
-### Система:
-- `gl` - git log с графиком
-- `slf` - swiftlint --fix
-- `cleands` - удаление .DS_Store
-- `bubu` - brew update && upgrade
-- `zcf` - редактирование .zshrc
-- `zs` - source ~/.zshrc
-
-## Памятка: FZF & ripgrep
-
-### FZF (fuzzy finder):
+### Chezmoi
 ```bash
-# Поиск файлов
-fzf
-
-# Поиск в истории команд
-fzf --history
-
-# Поиск процессов
-ps aux | fzf
+chezmoi apply          # Apply changes
+chezmoi diff           # See what would change
+chezmoi edit zshrc     # Edit a template
+chezmoi status         # Check status
 ```
 
-### ripgrep (rg):
+### Ansible
 ```bash
-# Поиск текста в файлах
-rg "поиск"
-
-# Поиск в определенных типах файлов
-rg "поиск" -t js -t ts
-
-# Игнорировать папки
-rg "поиск" -g "!node_modules"
-
-# Показать контекст
-rg "поиск" -A 3 -B 3
+make install           # Install Ansible + run config
+make ansible           # Install Ansible only
+make test              # Test playbooks
+make status            # Check what's installed
 ```
 
-## Обновление
+### Adding New Files
+```bash
+chezmoi add ~/.config/newapp/config.yml
+chezmoi forget ~/.config/oldapp/     # Remove from tracking
+```
+
+## What Gets Installed
+
+- **Shell**: Zsh + Oh My Zsh + Oh My Posh
+- **Terminal**: Ghostty
+- **Editor**: Neovim with Lazy.nvim
+- **Tools**: FZF, fd, ripgrep, zoxide, htop
+- **Dev**: Python (pyenv), Node.js, Go, Rust
+- **Package Managers**: Homebrew (macOS), apt/dnf (Linux)
+
+## Customize
+
+Edit `~/.config/chezmoi/chezmoi.yaml` for your machine:
+```yaml
+user:
+  name: "Your Name"
+  email: "your.email@example.com"
+  editor: "nvim"
+```
+
+## Project Structure
+
+```
+~/.dotfiles/
+├── ansible/           # System automation
+├── dot_config/        # App configs (Chezmoi templates)
+├── scripts/           # Chezmoi run_once scripts
+├── dot_zshrc.tmpl    # Shell config
+├── dot_gitconfig.tmpl # Git config
+└── Makefile          # Quick commands
+```
+
+## Making Changes to Zshrc
+
+### Step-by-Step Guide
+
+1. **Edit the template file**:
+   ```bash
+   chezmoi edit zshrc
+   ```
+   This opens the template file `dot_zshrc.tmpl` in your default editor.
+
+2. **Make your changes**:
+   - Add new aliases, functions, or configurations
+   - Modify existing settings
+   - Add new plugin configurations
+
+3. **Preview changes**:
+   ```bash
+   chezmoi diff
+   ```
+   This shows you exactly what will change when you apply.
+
+4. **Apply changes**:
+   ```bash
+   chezmoi apply
+   ```
+   This updates your actual `~/.zshrc` file.
+
+5. **Reload your shell** (optional):
+   ```bash
+   source ~/.zshrc
+   ```
+   Or simply restart your terminal.
+
+### Alternative: Direct Template Editing
+
+If you prefer to edit the template file directly:
+
+1. **Navigate to the template**:
+   ```bash
+   cd ~/.config/chezmoi
+   nvim dot_zshrc.tmpl
+   ```
+
+2. **Make changes and save**
+
+3. **Apply changes**:
+   ```bash
+   chezmoi apply
+   ```
+
+### Template Variables
+
+The zshrc template supports these variables (defined in `chezmoi.yaml`):
+- `{{ .user.name }}` - Your name
+- `{{ .user.email }}` - Your email
+- `{{ .user.editor }}` - Your preferred editor
+
+### Best Practices
+
+- **Test changes**: Use `chezmoi diff` before applying
+- **Backup**: Your original zshrc is preserved by Chezmoi
+- **Version control**: All changes are tracked in your dotfiles repo
+- **Machine-specific**: Use template variables for different machines
+
+### Git Workflow (After Making Changes)
+
+After applying your zshrc changes, commit and push to keep your dotfiles synchronized:
+
+1. **Check what changed**:
+   ```bash
+   git status
+   ```
+
+2. **Add your changes**:
+   ```bash
+   git add .
+   ```
+
+3. **Commit with a descriptive message**:
+   ```bash
+   git commit -m "Update zshrc: add new aliases and functions"
+   ```
+
+4. **Push to remote repository**:
+   ```bash
+   git push origin main
+   ```
+
+5. **On other machines**, pull the changes:
+   ```bash
+   chezmoi update
+   chezmoi apply
+   ```
+
+### Quick Git Commands
 
 ```bash
-cd ~/.dotfiles
-git add .
-git commit -m "Update"
-git push
+# One-liner for quick commits
+git add . && git commit -m "Update dotfiles" && git push
+
+# Check what's changed
+git diff
+
+# See commit history
+git log --oneline -10
 ```
 
-## Управление сабмодулями
+## Troubleshooting
 
-```bash
-# Обновить все сабмодули
-git submodule update --remote
-
-# Инициализировать сабмодули на новой машине
-git submodule update --init --recursive
-
-# Добавить новый плагин как сабмодуль
-cd config/nvim/pack/plugins/start
-git submodule add https://github.com/user/plugin.git plugin-name
-```
+- **Check status**: `make status`
+- **Reapply**: `chezmoi apply`
+- **Test**: `make test`
+- **Help**: `chezmoi help`

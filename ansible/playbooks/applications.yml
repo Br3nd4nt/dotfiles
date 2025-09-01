@@ -1,0 +1,89 @@
+---
+- name: Configure applications
+  tasks:
+    - name: Configure Neovim
+      block:
+        - name: Install Neovim plugins
+          shell: nvim --headless -c 'Lazy! sync' -c 'qa!'
+          become: false
+          environment:
+            PATH: "{{ home_dir }}/.local/bin:{{ ansible_env.PATH }}"
+          when: ansible_os_family != "Darwin"
+        
+        - name: Install Neovim plugins on macOS
+          shell: nvim --headless -c 'Lazy! sync' -c 'qa!'
+          become: false
+          environment:
+            PATH: "/opt/homebrew/bin:{{ ansible_env.PATH }}"
+          when: ansible_os_family == "Darwin"
+      tags: neovim
+    
+    - name: Configure Oh My Posh
+      block:
+        - name: Create Oh My Posh themes directory
+          file:
+            path: "{{ home_dir }}/.poshthemes"
+            state: directory
+            owner: "{{ user }}"
+            mode: '0755'
+        
+        - name: Download Oh My Posh themes
+          get_url:
+            url: "{{ item }}"
+            dest: "{{ home_dir }}/.poshthemes/{{ item | basename }}"
+            mode: '0644'
+            owner: "{{ user }}"
+          loop:
+            - https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/agnoster.omp.json
+            - https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/powerlevel10k_rainbow.omp.json
+            - https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/robbyrussell.omp.json
+      tags: oh-my-posh
+    
+    - name: Configure FZF
+      block:
+        - name: Generate FZF shell completion
+          shell: |
+            curl -s https://raw.githubusercontent.com/junegunn/fzf/master/shell/completion.zsh > "{{ home_dir }}/.fzf.zsh"
+            curl -s https://raw.githubusercontent.com/junegunn/fzf/master/shell/key-bindings.zsh > "{{ home_dir }}/.fzf-key-bindings.zsh"
+          become: false
+          args:
+            executable: /bin/bash
+      tags: fzf
+    
+    - name: Configure Zoxide
+      block:
+        - name: Create Zoxide configuration
+          copy:
+            content: |
+              # Zoxide configuration
+              eval "$(zoxide init zsh)"
+            dest: "{{ home_dir }}/.zoxide.zsh"
+            owner: "{{ user }}"
+            mode: '0644'
+      tags: zoxide
+    
+    - name: Configure SSH
+      block:
+        - name: Set SSH directory permissions
+          file:
+            path: "{{ home_dir }}/.ssh"
+            state: directory
+            mode: '0700'
+            owner: "{{ user }}"
+        
+        - name: Create SSH config if it doesn't exist
+          copy:
+            content: |
+              # SSH Configuration
+              Host *
+                AddKeysToAgent yes
+                UseKeychain yes
+                IdentityFile ~/.ssh/id_ed25519
+                ServerAliveInterval 60
+                ServerAliveCountMax 3
+            dest: "{{ home_dir }}/.ssh/config"
+            owner: "{{ user }}"
+            mode: '0600'
+            backup: yes
+          when: security.ssh_key is defined
+      tags: ssh

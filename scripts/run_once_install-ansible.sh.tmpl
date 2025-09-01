@@ -1,0 +1,48 @@
+#!/bin/bash
+# Chezmoi run_once script for Ansible installation - runs only once when dotfiles are first applied
+
+echo "Installing Ansible for {{ .chezmoi.hostname }}..."
+
+# Check if Ansible is already installed
+if command -v ansible &> /dev/null; then
+    echo "Ansible is already installed: $(ansible --version | head -n1)"
+    exit 0
+fi
+
+# Install Ansible based on OS
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS
+    if ! command -v brew &> /dev/null; then
+        echo "Installing Homebrew first..."
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+    fi
+    brew install ansible
+elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    # Linux
+    if [ -f /etc/fedora-release ]; then
+        sudo dnf install -y ansible
+    elif [ -f /etc/lsb-release ]; then
+        sudo apt-get update
+        sudo apt-get install -y ansible
+    else
+        echo "Unsupported Linux distribution. Please install Ansible manually."
+        exit 1
+    fi
+else
+    echo "Unsupported operating system: $OSTYPE"
+    echo "Please install Ansible manually."
+    exit 1
+fi
+
+# Install Ansible collections
+if command -v ansible &> /dev/null; then
+    echo "Installing Ansible collections..."
+    ansible-galaxy collection install -r {{ .chezmoi.sourceDir }}/ansible/requirements.yml
+    
+    echo "Ansible installation complete for {{ .chezmoi.hostname }}!"
+    echo "You can now run: ansible-playbook {{ .chezmoi.sourceDir }}/ansible/playbooks/main.yml"
+else
+    echo "Failed to install Ansible. Please check the installation process."
+    exit 1
+fi
