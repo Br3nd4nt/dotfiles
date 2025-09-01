@@ -140,7 +140,7 @@ autocmd("FileType", {
 vim.api.nvim_create_user_command("TSInstallAll", function()
   local ok, treesitter = pcall(require, "nvim-treesitter.install")
   if ok then
-    vim.cmd("TSInstall lua python json yaml bash dockerfile markdown vim c cpp")
+    vim.cmd("TSInstall lua python json yaml bash dockerfile markdown vim c cpp swift")
     vim.notify("Treesitter parsers installation started", vim.log.levels.INFO)
   else
     vim.notify("Treesitter not available", vim.log.levels.ERROR)

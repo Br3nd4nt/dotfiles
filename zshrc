@@ -88,9 +88,12 @@ else
 fi
 
 # File management
-alias cleands='find . -name ".DS_Store" -type f -delete'
+alias cleands='command find . -name ".DS_Store" -type f -delete'
 alias cd=z
 alias find=fd
+
+alias tree="tree -alx -L 5 -R --gitignore -I ".git" -I ".swiftlint" -I ".gitignore" --filelimit 10 -A -C"
+
 # Development tools
 alias gl="git log --graph --pretty=oneline --abbrev-commit"
 alias slf="swiftlint --fix"
