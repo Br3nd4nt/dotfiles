@@ -26,9 +26,9 @@ M.general = {
     -- LSP
     ["gd"] = { "<cmd>lua vim.lsp.buf.definition()<cr>", "Go to Definition" },
     ["K"] = { "<cmd>lua vim.lsp.buf.hover()<cr>", "Hover Documentation" },
-    
+
     -- Basic operations
-    ["<leader>s"] = { "<cmd> w <CR>", "Save file" },
+    ["<leader>w"] = { "<cmd> w <CR>", "Save file" },
     ["<leader>q"] = { "<cmd> q <CR>", "Quit" },
     ["<leader>nh"] = { "<cmd> noh <CR>", "Clear highlights" },
   },
@@ -54,7 +54,7 @@ M.general = {
 M.telescope = {
   -- Lazy load telescope mappings
   lazy = true,
-  
+
   n = {
     -- find
     ["<leader>ff"] = { "<cmd> Telescope find_files <cr>", "Find files" },
@@ -72,24 +72,20 @@ M.telescope = {
     -- pick a hidden term
     ["<leader>pt"] = { "<cmd> Telescope terms <cr>", "Pick hidden term" },
 
-    -- theme switcher
-    ["<leader>th"] = { "<cmd> Telescope themes <cr>", "Nvchad themes" },
 
     ["<leader>ma"] = { "<cmd> Telescope marks <cr>", "telescope bookmarks" },
   },
 }
 
 M.nvimtree = {
-
   n = {
     -- toggle
-    [",ee"] = { "<cmd> NvimTreeToggle <cr>", "Toggle nvimtree" },
+    ["<F6>"] = { "<cmd>NvimTreeToggle<cr>", "Toggle NvimTree" },
 
     -- focus
-    [",ef"] = { "<cmd> NvimTreeFocus <cr>", "Focus nvimtree" },
+    [",ef"] = { "<cmd>NvimTreeFocus<cr>", "Focus NvimTree" },
   },
 }
-
 M.windows = {
 
   n = {
@@ -211,6 +207,18 @@ M.whichkey = {
       end,
       "Show which-key root menu",
     },
+  },
+}
+
+M.toggleterm = {
+
+  n = {
+    ["<F5>"] = { "<cmd>ToggleTerm direction=float<cr>", "Toggle floating terminal" },
+  },
+
+  t = {
+    ["<F5>"] = { "<cmd>ToggleTerm direction=float<cr>", "Toggle floating terminal" },
+    ["<Esc>"] = { [[<C-\><C-n>]], "Exit terminal mode" },
   },
 }
 

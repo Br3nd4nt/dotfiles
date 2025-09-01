@@ -1,7 +1,5 @@
 font-family = BerkeletMono Nerd Font
-theme = Monokai Remastered
 font-size = 14
-# theme = GruvboxDarkHard
 cursor-style = block
 confirm-close-surface = false
 adjust-cell-height = 35%
@@ -14,3 +12,5 @@ window-save-state = always
 window-colorspace = "display-p3"
 
 keybind = f12=toggle_fullscreen
+theme = dark:catppuccin-frappe,light:catppuccin-latte
+

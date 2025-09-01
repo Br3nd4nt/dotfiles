@@ -20,10 +20,105 @@ vim.opt.rtp:prepend(lazypath)
 local default_plugins = {
   "nvim-lua/plenary.nvim",
 
+  -- TokyoNight colorscheme
+  {
+    "folke/tokyonight.nvim",
+    lazy = false,    -- Load on startup
+    priority = 1000, -- High priority to ensure it loads early
+    opts = {},
+    config = function(_, opts)
+      require("tokyonight").setup(opts)
+      -- Do not set a colorscheme here; we restore the user's last choice if present
+    end,
+  },
+
+  -- vim-airline status line
+  {
+    "vim-airline/vim-airline",
+    lazy = false, -- Load on startup
+    dependencies = {
+      "vim-airline/vim-airline-themes",
+    },
+    config = function()
+      -- Function to detect if current colorscheme is light or dark
+      local function is_light_colorscheme()
+        local colors_name = vim.g.colors_name or ""
+        
+        -- Common light colorschemes
+        local light_patterns = {
+          "day", "light", "latte", "dawn", "rose-pine-dawn", "catppuccin_latte",
+          "PaperColor", "github", "gruvbox_light", "solarized8_light"
+        }
+        
+        for _, pattern in ipairs(light_patterns) do
+          if colors_name:lower():match(pattern:lower()) then
+            return true
+          end
+        end
+        
+        -- Check background setting
+        if vim.o.background == "light" then
+          return true
+        end
+        
+        return false
+      end
+      
+      -- Function to update airline theme based on light/dark detection
+      local function update_airline_theme()
+        if not vim.g.loaded_airline then
+          return
+        end
+        
+        local is_light = is_light_colorscheme()
+        local airline_theme = is_light and "light" or "dark"
+        
+        -- Set airline theme
+        vim.g.airline_theme = airline_theme
+        
+        -- Refresh airline
+        pcall(function()
+          vim.cmd("AirlineRefresh")
+        end)
+      end
+      
+      -- Set initial airline configuration
+      vim.g.airline_theme = "dark" -- default
+      vim.g.airline_powerline_fonts = 1
+      vim.g.airline_showmode = 1
+      vim.g.airline_showpaste = 1
+      vim.g.airline_showcmd = 1
+      vim.g.airline_showtabline = 1
+      
+      -- Auto-update airline when colorscheme changes
+      vim.api.nvim_create_autocmd("ColorScheme", {
+        callback = function()
+          -- Small delay to ensure colorscheme is fully loaded
+          vim.defer_fn(update_airline_theme, 100)
+        end,
+      })
+      
+      -- Initial update
+      vim.defer_fn(update_airline_theme, 100)
+    end,
+  },
+
+  -- Markdown preview
+  {
+    "iamcco/markdown-preview.nvim",
+    cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
+    build = "cd app && yarn install",
+    init = function()
+      vim.g.mkdp_filetypes = { "markdown" }
+    end,
+    ft = { "markdown" },
+  },
+
   -- Disable LuaRocks to avoid installation issues
   rocks = {
     enabled = false,
   },
+
   -- Catppuccin colorscheme
   {
     "catppuccin/nvim",
@@ -129,18 +224,130 @@ local default_plugins = {
       require("telescope.builtin")
     end,
   },
-  
-  -- NERDTree
+
+  -- Colorscheme preview and management
   {
-    "preservim/nerdtree",
-    cmd = { "NERDTreeToggle", "NERDTreeFocus" },
+    "zaldih/themery.nvim",
+    cmd = "Themery",
+    config = function()
+      require("themery").setup({
+        themes = {}, -- Will be populated automatically
+        livePreview = true,
+        themeConfigFile = "~/.config/nvim/lua/colorscheme.lua",
+        livePreviewBufName = "THEMERY_PREVIEW",
+        defaultBackground = "dark",
+        sort = "name",
+        preview = {
+          keymap = {
+            n = {
+              ["<CR>"] = "apply_theme",
+              ["<C-c>"] = "close_preview",
+              ["<C-s>"] = "save_theme",
+            },
+          },
+        },
+      })
+    end,
+  },
+
+  -- nvim-tree
+{
+  "nvim-tree/nvim-tree.lua",
+  cmd = { "NvimTreeToggle", "NvimTreeFocus" },
+  dependencies = {
+    "nvim-tree/nvim-web-devicons", -- Иконки
+  },
+  init = function()
+    require("core.utils").load_mappings "nvimtree"
+    vim.api.nvim_set_keymap("n", "<F6>", ":NvimTreeToggle<CR>", { noremap = true, silent = true })
+  end,
+  config = function()
+    require("nvim-tree").setup({
+      sort = {
+        sorter = "case_sensitive",
+      },
+      view = {
+        width = 35,
+        side = "left",
+      },
+      renderer = {
+        group_empty = true,
+        highlight_git = true,
+        icons = {
+          glyphs = {
+            git = {
+              unstaged = "✗",
+              staged = "✓",
+              unmerged = "",
+              renamed = "➜",
+              untracked = "★",
+              deleted = "",
+              ignored = "◌",
+            },
+          },
+        },
+      },
+      filters = {
+        dotfiles = false,
+        custom = { ".git", "node_modules", ".cache" },
+      },
+      git = {
+        enable = true,
+        ignore = false,
+        timeout = 200,
+      },
+    })
+  end,
+},
+
+
+  -- Terminal
+  {
+    'akinsho/toggleterm.nvim', 
+    version = "*", 
+    lazy = false,
     init = function()
-      require("core.utils").load_mappings "nvimtree"
+      require("core.utils").load_mappings "toggleterm"
+      vim.api.nvim_set_keymap('n', '<F5>', ':ToggleTerm direction=float<CR>', { noremap = true, silent = true })
     end,
     config = function()
-      vim.g.NERDTreeShowHidden = 1
-      vim.g.NERDTreeMinimalUI = 1
-      vim.g.NERDTreeIgnore = { ".git", "node_modules", ".cache" }
+      require("toggleterm").setup({
+        size = 20,
+        open_mapping = [[<F5>]],
+        hide_numbers = true,
+        shade_filetypes = {},
+        shade_terminals = true,
+        shading_factor = 2,
+        start_in_insert = true,
+        insert_mappings = true,
+        terminal_mappings = true,
+        persist_size = true,
+        direction = "float",
+        close_on_exit = true,
+        shell = vim.o.shell,
+        auto_scroll = true,
+        float_opts = {
+          border = "curved",
+          winblend = 0,
+          highlights = {
+            border = "Normal",
+            background = "Normal",
+          },
+        },
+        -- Fix modifiable issues
+        on_create = function(term)
+          vim.opt_local.foldcolumn = "0"
+          vim.opt_local.signcolumn = "no"
+          -- Ensure buffer is modifiable
+          vim.api.nvim_buf_set_option(term.bufnr, "modifiable", true)
+          vim.api.nvim_buf_set_option(term.bufnr, "readonly", false)
+        end,
+        on_open = function(term)
+          -- Ensure we can edit in terminal
+          vim.api.nvim_buf_set_option(term.bufnr, "modifiable", true)
+          vim.cmd("startinsert!")
+        end,
+      })
     end,
   },
   
@@ -196,6 +403,8 @@ local default_plugins = {
           "bashls",
           "dockerls",
           "marksman",
+          "clangd",        -- C/C++ LSP
+          "sourcekit-lsp", -- Swift LSP
         },
         automatic_installation = false, -- Disable automatic installation to avoid errors
       })
@@ -214,7 +423,10 @@ local default_plugins = {
     end,
     config = function()
       local lspconfig = require("lspconfig")
-      
+
+      -- Setup completion capabilities
+      local capabilities = require('cmp_nvim_lsp').default_capabilities()
+
       -- LSP servers configuration
       local servers = {
         -- Lua
@@ -284,11 +496,39 @@ local default_plugins = {
         
         -- Markdown
         marksman = {},
+
+        -- C/C++
+        clangd = {
+          cmd = { "clangd", "--background-index" },
+          filetypes = { "c", "cpp", "objc", "objcpp" },
+          settings = {
+            clangd = {
+              InlayHints = {
+                Designators = true,
+                Enabled = true,
+                ParameterNames = true,
+                DeducedTypes = true,
+              },
+              fallbackFlags = { "-std=c17" },
+            },
+          },
+        },
+
+        -- Swift
+        sourcekit = {
+          cmd = { "sourcekit-lsp" },
+          filetypes = { "swift" },
+          root_dir = function(fname)
+            return require('lspconfig.util').root_pattern('Package.swift', '.git')(fname)
+          end,
+        },
       }
       
       -- Setup each server with error handling
       for server_name, config in pairs(servers) do
         pcall(function()
+          -- Add capabilities to each server config
+          config.capabilities = capabilities
           lspconfig[server_name].setup(config)
         end)
       end
@@ -323,6 +563,7 @@ local default_plugins = {
           "vim",
           "c",
           "cpp",
+          "swift",
         },
         highlight = { enable = true },
         indent = { enable = true },
@@ -337,6 +578,261 @@ local default_plugins = {
     "windwp/nvim-autopairs",
     config = function()
       require("nvim-autopairs").setup()
+    end,
+  },
+
+  -- Icons
+  {
+    "nvim-tree/nvim-web-devicons",
+    lazy = false,
+    config = function()
+      require("nvim-web-devicons").setup({
+        -- Enable color icons
+        color_icons = true,
+        -- Enable default icons for unknown file types
+        default = true,
+        -- Enable strict mode (only return icons for known file types)
+        strict = false,
+        -- Custom icons for specific file types
+        override = {
+          zsh = {
+            icon = "",
+            color = "#428850",
+            cterm_color = "65",
+            name = "Zsh"
+          },
+          vim = {
+            icon = "",
+            color = "#019833",
+            cterm_color = "28",
+            name = "Vim"
+          },
+          lua = {
+            icon = "",
+            color = "#51a0cf",
+            cterm_color = "74",
+            name = "Lua"
+          },
+          py = {
+            icon = "",
+            color = "#ffbc03",
+            cterm_color = "214",
+            name = "Python"
+          },
+          swift = {
+            icon = "",
+            color = "#e37933",
+            cterm_color = "166",
+            name = "Swift"
+          },
+          c = {
+            icon = "",
+            color = "#599eff",
+            cterm_color = "75",
+            name = "C"
+          },
+          cpp = {
+            icon = "",
+            color = "#f34b7d",
+            cterm_color = "204",
+            name = "CPlusPlus"
+          },
+          sh = {
+            icon = "",
+            color = "#4d5a5e",
+            cterm_color = "240",
+            name = "Shell"
+          },
+          bash = {
+            icon = "",
+            color = "#4d5a5e",
+            cterm_color = "240",
+            name = "Bash"
+          },
+        },
+        -- Override by filename
+        override_by_filename = {
+          [".gitignore"] = {
+            icon = "",
+            color = "#e24329",
+            name = "GitIgnore"
+          },
+          ["README.md"] = {
+            icon = "",
+            color = "#519aba",
+            name = "Readme"
+          },
+          ["LICENSE"] = {
+            icon = "",
+            color = "#d0bf41",
+            name = "License"
+          },
+        },
+      })
+    end,
+  },
+
+  -- Completion framework
+  {
+    "hrsh7th/nvim-cmp",
+    lazy = false,
+    dependencies = {
+      "hrsh7th/cmp-nvim-lsp",     -- LSP completion source
+      "hrsh7th/cmp-buffer",       -- Buffer completion source
+      "hrsh7th/cmp-path",         -- Path completion source
+      "hrsh7th/cmp-cmdline",      -- Command line completion source
+      "L3MON4D3/LuaSnip",        -- Snippet engine
+      "saadparwaiz1/cmp_luasnip", -- Snippet completion source
+      "rafamadriz/friendly-snippets", -- Collection of snippets
+    },
+    config = function()
+      local cmp = require("cmp")
+      local luasnip = require("luasnip")
+
+      -- Load friendly-snippets
+      require("luasnip.loaders.from_vscode").lazy_load()
+
+      cmp.setup({
+        enabled = function()
+          -- Disable completion in comments and prompts
+          local context = require 'cmp.config.context'
+          if vim.api.nvim_get_mode().mode == 'c' then
+            return true
+          else
+            return not context.in_treesitter_capture("comment")
+              and not context.in_syntax_group("Comment")
+          end
+        end,
+        completion = {
+          completeopt = 'menu,menuone,noinsert',
+        },
+        snippet = {
+          expand = function(args)
+            luasnip.lsp_expand(args.body)
+          end,
+        },
+        mapping = cmp.mapping.preset.insert({
+          ["<C-b>"] = cmp.mapping.scroll_docs(-4),
+          ["<C-f>"] = cmp.mapping.scroll_docs(4),
+          ["<C-Space>"] = cmp.mapping.complete(),
+          ["<C-e>"] = cmp.mapping.abort(),
+          ["<CR>"] = cmp.mapping.confirm({ select = true }),
+          ["<Tab>"] = cmp.mapping(function(fallback)
+            if cmp.visible() then
+              cmp.select_next_item()
+            elseif luasnip.expand_or_jumpable() then
+              luasnip.expand_or_jump()
+            else
+              fallback()
+            end
+          end, { "i", "s" }),
+          ["<S-Tab>"] = cmp.mapping(function(fallback)
+            if cmp.visible() then
+              cmp.select_prev_item()
+            elseif luasnip.jumpable(-1) then
+              luasnip.jump(-1)
+            else
+              fallback()
+            end
+          end, { "i", "s" }),
+        }),
+        sources = cmp.config.sources({
+          { name = "nvim_lsp" },    -- LSP completions (highest priority)
+          { name = "luasnip" },     -- Snippet completions
+        }, {
+          { name = "buffer" },      -- Buffer completions (lower priority)
+          { name = "path" },        -- Path completions
+        }),
+        formatting = {
+          format = function(entry, vim_item)
+            -- Enhanced icons for completion item kinds
+            local icons = {
+              Text = "󰉿",          -- Text
+              Method = "󰆧",         -- Method
+              Function = "󰊕",       -- Function
+              Constructor = "",    -- Constructor
+              Field = "󰜢",          -- Field
+              Variable = "󰀫",       -- Variable
+              Class = "󰠱",          -- Class
+              Interface = "",      -- Interface
+              Module = "",         -- Module
+              Property = "󰜢",       -- Property
+              Unit = "󰑭",           -- Unit
+              Value = "󰎠",          -- Value
+              Enum = "",           -- Enum
+              Keyword = "󰌋",        -- Keyword
+              Snippet = "",        -- Snippet
+              Color = "󰏘",          -- Color
+              File = "󰈙",           -- File
+              Reference = "󰈇",      -- Reference
+              Folder = "󰉋",         -- Folder
+              EnumMember = "",     -- EnumMember
+              Constant = "󰏿",       -- Constant
+              Struct = "󰙅",         -- Struct
+              Event = "",          -- Event
+              Operator = "󰆕",       -- Operator
+              TypeParameter = "", -- TypeParameter
+            }
+            
+            -- Get icon from devicons for file-based completions
+            local icon, hl_group
+            if vim_item.kind == "File" then
+              icon, hl_group = require("nvim-web-devicons").get_icon(entry:get_completion_item().label)
+              if icon then
+                vim_item.kind_hl_group = hl_group
+                vim_item.kind = icon
+              else
+                vim_item.kind = icons[vim_item.kind] or ""
+              end
+            else
+              vim_item.kind = icons[vim_item.kind] or ""
+            end
+            
+            -- Enhanced menu labels with colors
+            local menu_items = {
+              nvim_lsp = "[LSP]",
+              luasnip = "[󰩫 Snippet]", 
+              buffer = "[󰯂 Buffer]",
+              path = "[󰝰 Path]",
+              cmdline = "[󰞷 CMD]",
+            }
+            
+            vim_item.menu = menu_items[entry.source.name] or string.format("[%s]", entry.source.name)
+            
+            -- Truncate long items
+            local label = vim_item.abbr
+            local truncated_label = vim.fn.strchars(label) > 50 and vim.fn.strcharpart(label, 0, 50) .. "…" or label
+            vim_item.abbr = truncated_label
+            
+            return vim_item
+          end,
+        },
+        window = {
+          completion = cmp.config.window.bordered(),
+          documentation = cmp.config.window.bordered(),
+        },
+      })
+
+      -- Setup command line completion
+      cmp.setup.cmdline({ "/", "?" }, {
+        mapping = cmp.mapping.preset.cmdline(),
+        sources = {
+          { name = "buffer" }
+        }
+      })
+
+      cmp.setup.cmdline(":", {
+        mapping = cmp.mapping.preset.cmdline(),
+        sources = cmp.config.sources({
+          { name = "path" }
+        }, {
+          { name = "cmdline" }
+        })
+      })
+
+      -- Setup autopairs integration
+      local cmp_autopairs = require("nvim-autopairs.completion.cmp")
+      cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())
     end,
   },
   
