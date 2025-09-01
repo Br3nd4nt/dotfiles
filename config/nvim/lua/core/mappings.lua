@@ -26,9 +26,9 @@ M.general = {
     -- LSP
     ["gd"] = { "<cmd>lua vim.lsp.buf.definition()<cr>", "Go to Definition" },
     ["K"] = { "<cmd>lua vim.lsp.buf.hover()<cr>", "Hover Documentation" },
-    
+
     -- Basic operations
-    ["<leader>s"] = { "<cmd> w <CR>", "Save file" },
+    ["<leader>w"] = { "<cmd> w <CR>", "Save file" },
     ["<leader>q"] = { "<cmd> q <CR>", "Quit" },
     ["<leader>nh"] = { "<cmd> noh <CR>", "Clear highlights" },
   },
@@ -44,12 +44,17 @@ M.general = {
     ["j"] = { 'v:count || mode(1)[0:1] == "no" ? "j" : "gj"', "Move down", opts = { expr = true } },
     ["k"] = { 'v:count || mode(1)[0:1] == "no" ? "k" : "gk"', "Move up", opts = { expr = true } },
   },
+
+  i = {
+    -- Disable leader key in insert mode - make space work normally
+    ["<Space>"] = { " ", "Space" },
+  },
 }
 
 M.telescope = {
   -- Lazy load telescope mappings
   lazy = true,
-  
+
   n = {
     -- find
     ["<leader>ff"] = { "<cmd> Telescope find_files <cr>", "Find files" },
@@ -67,32 +72,28 @@ M.telescope = {
     -- pick a hidden term
     ["<leader>pt"] = { "<cmd> Telescope terms <cr>", "Pick hidden term" },
 
-    -- theme switcher
-    ["<leader>th"] = { "<cmd> Telescope themes <cr>", "Nvchad themes" },
 
     ["<leader>ma"] = { "<cmd> Telescope marks <cr>", "telescope bookmarks" },
   },
 }
 
 M.nvimtree = {
-
   n = {
     -- toggle
-    ["<leader>ee"] = { "<cmd> NvimTreeToggle <cr>", "Toggle nvimtree" },
+    ["<F6>"] = { "<cmd>NvimTreeToggle<cr>", "Toggle NvimTree" },
 
     -- focus
-    ["<leader>ef"] = { "<cmd> NvimTreeFocus <cr>", "Focus nvimtree" },
+    [",ef"] = { "<cmd>NvimTreeFocus<cr>", "Focus NvimTree" },
   },
 }
-
 M.windows = {
 
   n = {
     -- split management
-    ["<leader>sv"] = { "<C-w>v", "Split vertically" },
-    ["<leader>sh"] = { "<C-w>s", "Split horizontally" },
-    ["<leader>se"] = { "<C-w>=", "Equalize windows" },
-    ["<leader>sx"] = { "<cmd> close <CR>", "Close window" },
+    [",sv"] = { "<C-w>v", "Split vertically" },
+    [",sh"] = { "<C-w>s", "Split horizontally" },
+    [",se"] = { "<C-w>=", "Equalize windows" },
+    [",sx"] = { "<cmd> close <CR>", "Close window" },
   },
 }
 
@@ -102,9 +103,9 @@ M.code = {
 
   n = {
     -- code actions
-    ["<leader>ca"] = { "<cmd>lua vim.lsp.buf.code_action()<cr>", "Code Action" },
-    ["<leader>cr"] = { "<cmd>lua vim.lsp.buf.rename()<cr>", "Rename" },
-    ["<leader>cf"] = { "<cmd>lua vim.lsp.buf.format()<cr>", "Format" },
+    [",ca"] = { "<cmd>lua vim.lsp.buf.code_action()<cr>", "Code Action" },
+    [",cr"] = { "<cmd>lua vim.lsp.buf.rename()<cr>", "Rename" },
+    [",cf"] = { "<cmd>lua vim.lsp.buf.format()<cr>", "Format" },
   },
 }
 
@@ -112,9 +113,9 @@ M.diagnostics = {
 
   n = {
     -- diagnostics
-    ["<leader>ds"] = { "<cmd>lua vim.diagnostic.open_float()<cr>", "Show Diagnostics" },
-    ["<leader>dn"] = { "<cmd>lua vim.diagnostic.goto_next()<cr>", "Next Diagnostic" },
-    ["<leader>dp"] = { "<cmd>lua vim.diagnostic.goto_prev()<cr>", "Previous Diagnostic" },
+    [",ds"] = { "<cmd>lua vim.diagnostic.open_float()<cr>", "Show Diagnostics" },
+    [",dn"] = { "<cmd>lua vim.diagnostic.goto_next()<cr>", "Next Diagnostic" },
+    [",dp"] = { "<cmd>lua vim.diagnostic.goto_prev()<cr>", "Previous Diagnostic" },
   },
 }
 
@@ -123,63 +124,63 @@ M.lspconfig = {
   -- See `<cmd> :help vim.lsp.*` for documentation on any of the below functions
 
   n = {
-    ["<leader>ca"] = {
+    [",ca"] = {
       function()
         vim.lsp.buf.code_action()
       end,
       "LSP code action",
     },
 
-    ["<leader>cr"] = {
+    [",cr"] = {
       function()
         require("nvchad.renamer").open()
       end,
       "LSP rename",
     },
 
-    ["<leader>cf"] = {
+    [",cf"] = {
       function()
         vim.lsp.buf.format { async = true }
       end,
       "LSP formatting",
     },
 
-    ["<leader>ds"] = {
+    [",ds"] = {
       function()
         vim.diagnostic.open_float { border = "rounded" }
       end,
       "Floating diagnostic",
     },
 
-    ["<leader>dn"] = {
+    [",dn"] = {
       function()
         vim.diagnostic.goto_next { float = { border = "rounded" } }
       end,
       "Goto next",
     },
 
-    ["<leader>dp"] = {
+    [",dp"] = {
       function()
         vim.diagnostic.goto_prev { float = { border = "rounded" } }
       end,
       "Goto prev",
     },
 
-    ["<leader>wa"] = {
+    [",wa"] = {
       function()
         vim.lsp.buf.add_workspace_folder()
       end,
       "Add workspace folder",
     },
 
-    ["<leader>wr"] = {
+    [",wr"] = {
       function()
         vim.lsp.buf.remove_workspace_folder()
       end,
       "Remove workspace folder",
     },
 
-    ["<leader>wl"] = {
+    [",wl"] = {
       function()
         print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
       end,
@@ -188,7 +189,7 @@ M.lspconfig = {
   },
 
   v = {
-    ["<leader>ca"] = {
+    [",ca"] = {
       function()
         vim.lsp.buf.code_action()
       end,
@@ -206,6 +207,18 @@ M.whichkey = {
       end,
       "Show which-key root menu",
     },
+  },
+}
+
+M.toggleterm = {
+
+  n = {
+    ["<F5>"] = { "<cmd>ToggleTerm direction=float<cr>", "Toggle floating terminal" },
+  },
+
+  t = {
+    ["<F5>"] = { "<cmd>ToggleTerm direction=float<cr>", "Toggle floating terminal" },
+    ["<Esc>"] = { [[<C-\><C-n>]], "Exit terminal mode" },
   },
 }
 
