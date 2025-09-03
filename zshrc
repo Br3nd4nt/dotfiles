@@ -8,13 +8,23 @@
 
 export HOMEBREW_AUTO_UPDATE_SECS=604800
 
+# Swift toolchain
+export PATH="/opt/homebrew/opt/swift/bin:$PATH"
+
 # =======================
 # Oh My Zsh Configuration
 # =======================
 export ZSH="$HOME/.oh-my-zsh"
 ENABLE_CORRECTION="true"
 COMPLETION_WAITING_DOTS="true"
-plugins=(git fzf-docker)
+plugins=(
+    git
+    fzf-docker
+    zsh-autosuggestions
+    zsh-syntax-highlighting
+    you-should-use
+    zsh-bat
+)
 
 # ==============
 # Load Oh My Zsh

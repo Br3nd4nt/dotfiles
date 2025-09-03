@@ -404,7 +404,6 @@ local default_plugins = {
           "dockerls",
           "marksman",
           "clangd",        -- C/C++ LSP
-          "sourcekit-lsp", -- Swift LSP
         },
         automatic_installation = false, -- Disable automatic installation to avoid errors
       })
@@ -412,9 +411,19 @@ local default_plugins = {
   },
 
   -- LSP config
+{
+  "j-hui/fidget.nvim",
+  tag = "legacy",
+  lazy=false,
+  config = function()
+    require("fidget").setup({})
+  end,
+},
+
   {
     "neovim/nvim-lspconfig",
     event = "User FilePost",
+    lazy=false,
     dependencies = {
       "williamboman/mason-lspconfig.nvim",
     },
@@ -515,12 +524,16 @@ local default_plugins = {
         },
 
         -- Swift
-        sourcekit = {
-          cmd = { "sourcekit-lsp" },
+        ["sourcekit-lsp"] = {
+          cmd = { "/opt/homebrew/opt/swift/bin/sourcekit-lsp" },
           filetypes = { "swift" },
           root_dir = function(fname)
             return require('lspconfig.util').root_pattern('Package.swift', '.git')(fname)
+                or vim.fn.getcwd()
           end,
+          settings = {},
+          init_options = {},
+          capabilities = capabilities,
         },
       }
 
@@ -579,7 +592,7 @@ local default_plugins = {
     config = function()
       local autopairs = require("nvim-autopairs")
       autopairs.setup()
-      
+
       -- Integrate with nvim-cmp
       local cmp_autopairs = require("nvim-autopairs.completion.cmp")
       local cmp = require("cmp")
@@ -597,6 +610,8 @@ local default_plugins = {
       require("luasnip").setup()
     end,
   },
+
+
 
   -- VSCode-like inline completion
   {
