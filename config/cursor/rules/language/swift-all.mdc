@@ -1,0 +1,8 @@
+---
+globs: *.swift
+alwaysApply: true
+---
+
+!include ../ios-cursor-rules/.cursor/rules/with-swift.mdc
+!include ../ios-cursor-rules/.cursor/rules/clean-architecture-swift.mdc
+!include ../ios-cursor-rules/.cursor/rules/create-tests-swift.mdc

@@ -4,3 +4,5 @@ alwaysApply: true
 
 !include rules/ios-cursor-rules/.cursor/rules/with-swift.mdc
 !include rules/ios-cursor-rules/.cursor/rules/with-ios.mdc
+
+!include rules/language/swift-all.mdc
