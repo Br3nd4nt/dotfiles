@@ -186,6 +186,12 @@ if [[ "$1" != "--install" ]]; then
     check_exists "$HOME/.config/nvim"
     check_exists "$HOME/.config/ohmyposh"
     echo
+    
+    # Cursor configuration
+    print_status "Cursor configuration:"
+    check_exists "$HOME/.cursor/rules.mdc"
+    check_exists "$HOME/.cursor/rules"
+    echo
     print_status "Note: Neovim uses Lazy.nvim for plugin management (no git submodules)"
     echo
 
@@ -229,6 +235,7 @@ mkdir -p ~/.config
 mkdir -p ~/.config/htop
 mkdir -p ~/.config/ghostty
 mkdir -p ~/.local/bin
+mkdir -p ~/.cursor
 
 # Install main dotfiles
 print_status "Installing main dotfiles..."
@@ -246,6 +253,13 @@ create_symlink "$DOTFILES_DIR/config/htop/htoprc" "$HOME/.config/htop/htoprc"
 
 # Ghostty configuration
 create_symlink "$DOTFILES_DIR/config/ghostty/config" "$HOME/.config/ghostty/config"
+
+# Cursor configuration
+print_status "Installing Cursor configuration..."
+if [ -d "$DOTFILES_DIR/config/cursor" ]; then
+    create_symlink "$DOTFILES_DIR/config/cursor/rules.mdc" "$HOME/.cursor/rules.mdc"
+    create_symlink "$DOTFILES_DIR/config/cursor/rules" "$HOME/.cursor/rules"
+fi
 
 # Install config directories
 print_status "Installing configuration directories..."
@@ -276,3 +290,8 @@ fi
 
 print_success "Dotfiles installation completed!"
 print_status "Please restart your terminal or run 'source ~/.zshrc' to apply changes."
+
+# Initialize and update git submodules (e.g., Cursor rules bundles)
+print_status "Updating git submodules..."
+git submodule update --init --recursive
+print_success "Git submodules updated."

@@ -1,0 +1,3 @@
+[submodule "config/cursor/rules/ios-cursor-rules"]
+	path = config/cursor/rules/ios-cursor-rules
+	url = https://github.com/brunogama/ios-cursor-rules
