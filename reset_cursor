@@ -1,0 +1,244 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# Elevate to sudo if not already root; preserve env once
+if [ "${EUID}" -ne 0 ]; then
+  if [ "${RESET_CURSOR_ELEVATED:-0}" != "1" ]; then
+    echo "Elevating with sudo to perform protected operations..."
+    export RESET_CURSOR_ELEVATED=1
+    exec sudo -E "$0" "$@"
+  fi
+fi
+
+RED="\033[31m"
+GREEN="\033[32m"
+YELLOW="\033[33m"
+BLUE="\033[34m"
+BOLD="\033[1m"
+RESET="\033[0m"
+
+# App/paths config
+APP_NAME="Cursor"
+DASHBOARD_URL="https://cursor.com/dashboard?tab=settings"
+USER_APP_SUPPORT="$HOME/Library/Application Support"
+CURSOR_SUPPORT="$USER_APP_SUPPORT/Cursor"
+CURSOR_USER_GLOBAL="$CURSOR_SUPPORT/User/globalStorage"
+APP_RESOURCES="/Applications/${APP_NAME}.app/Contents/Resources"
+APP_DIR="${APP_RESOURCES}/app"
+PRODUCT_JSON="${APP_DIR}/product.json"
+APP_UPDATE_YML="${APP_RESOURCES}/app-update.yml"
+UPDATER_PATH="${USER_APP_SUPPORT}/cursor-updater"
+STORAGE_JSON="${CURSOR_USER_GLOBAL}/storage.json"
+MACHINE_ID_FILE="${CURSOR_SUPPORT}/machineId"
+DB="${CURSOR_USER_GLOBAL}/state.vscdb"
+
+# Run GUI actions as the invoking user (not root) so defaults apply
+RUN_AS_USER="${SUDO_USER:-$USER}"
+
+# Utilities
+require_cmd() {
+  if ! command -v "$1" >/dev/null 2>&1; then
+    echo -e "${BOLD}${RED}Missing dependency: $1. Install it (e.g., brew install $1)." >&2
+    exit 1
+  fi
+}
+
+backup_file() {
+  local f="$1"
+  if [ -f "$f" ]; then
+    local ts
+    ts="$(date +%Y%m%d_%H%M%S)"
+    if cp -p "$f" "$f.bak.$ts" 2>/dev/null; then
+      :
+    else
+      sudo -n cp -p "$f" "$f.bak.$ts" 2>/dev/null || true
+    fi
+  fi
+}
+
+# No need to ensure sudo here because we fully re-exec'd as root above
+
+# first step - kill cursor
+echo -e "${BOLD}${YELLOW}killing all Cursor processes"
+
+# Find and terminate Cursor processes safely (no error if none)
+pids=$(pgrep -f "[C]ursor" || true)
+if [ -n "${pids}" ]; then
+  # Try graceful termination first, then force if still running
+  kill ${pids} 2>/dev/null || true
+  sleep 0.5
+  remaining=$(pgrep -f "[C]ursor" || true)
+  if [ -n "${remaining}" ]; then
+    kill -9 ${remaining} 2>/dev/null || true
+  fi
+fi
+
+echo -e "${BOLD}${GREEN}all processes are dead :)"
+
+# step two - 'logout' out of the cursor
+# via removing fields from the sqlite db
+
+echo -e "${BOLD}${YELLOW}logging out from Cursor app"
+
+# Ensure sqlite3 exists and database file is present
+if ! command -v sqlite3 >/dev/null 2>&1; then
+  echo -e "${BOLD}${RED}sqlite3 not found. Please install sqlite3 and re-run."
+  exit 1
+fi
+
+if [ ! -f "$DB" ]; then
+  echo -e "${BOLD}${RED}Database not found at: $DB"
+  echo -e "${YELLOW}Open Cursor at least once, then close it and re-run."
+  exit 1
+fi
+
+sqlite3 "$DB" <<'SQL'
+BEGIN;
+
+-- Remove sensitive tokens
+DELETE FROM ItemTable
+WHERE key IN ('cursorAuth/accessToken', 'cursorAuth/refreshToken');
+
+-- Clear cachedEmail
+INSERT INTO ItemTable(key, value) VALUES('cursorAuth/cachedEmail', '')
+    ON CONFLICT(key) DO UPDATE SET value=excluded.value;
+
+-- Set cachedSignUpType to "unknown"
+INSERT INTO ItemTable(key, value) VALUES('cursorAuth/cachedSignUpType', 'unknown')
+    ON CONFLICT(key) DO UPDATE SET value=excluded.value;
+
+COMMIT;
+SQL
+
+echo -e "${BOLD}${GREEN}login info cleared"
+
+# step three - disable auto-update and reset machine/telemetry IDs
+echo -e "${BOLD}${YELLOW}disabling auto-updates and resetting machine/telemetry IDs"
+
+# Dependencies for this section
+require_cmd jq
+require_cmd sqlite3
+require_cmd openssl
+
+# Generate new identifiers
+DEV_DEVICE_ID="$(uuidgen | tr '[:upper:]' '[:lower:]')"
+MACHINE_ID="$(openssl rand -hex 32)"
+MAC_MACHINE_ID="$(openssl rand -hex 64)"
+SQM_ID="$(uuidgen | awk '{print "{" toupper($0) "}"}')"
+
+# Update storage.json
+mkdir -p "$(dirname "$STORAGE_JSON")"
+backup_file "$STORAGE_JSON"
+if [ ! -f "$STORAGE_JSON" ]; then
+  echo '{}' > "$STORAGE_JSON"
+fi
+tmp_json="$(mktemp)"
+jq \
+  --arg dev "$DEV_DEVICE_ID" \
+  --arg mac "$MAC_MACHINE_ID" \
+  --arg mach "$MACHINE_ID" \
+  --arg sqm "$SQM_ID" \
+  '. + {
+    "telemetry.devDeviceId": $dev,
+    "telemetry.macMachineId": $mac,
+    "telemetry.machineId": $mach,
+    "telemetry.sqmId": $sqm,
+    "storage.serviceMachineId": $dev
+  }' "$STORAGE_JSON" > "$tmp_json"
+mv "$tmp_json" "$STORAGE_JSON"
+
+# Update SQLite with IDs as well
+sqlite3 "$DB" <<SQL
+CREATE TABLE IF NOT EXISTS ItemTable (key TEXT PRIMARY KEY, value TEXT);
+INSERT OR REPLACE INTO ItemTable(key, value) VALUES
+ ('telemetry.devDeviceId', '$DEV_DEVICE_ID'),
+ ('telemetry.macMachineId', '$MAC_MACHINE_ID'),
+ ('telemetry.machineId', '$MACHINE_ID'),
+ ('telemetry.sqmId', '$SQM_ID'),
+ ('storage.serviceMachineId', '$DEV_DEVICE_ID');
+SQL
+
+# Update machineId file (handle permission issues gracefully; sudo fallback)
+mkdir -p "$(dirname "$MACHINE_ID_FILE")"
+backup_file "$MACHINE_ID_FILE"
+tmp_mid="$(mktemp)"
+printf "%s" "$MACHINE_ID" > "$tmp_mid"
+if mv "$tmp_mid" "$MACHINE_ID_FILE" 2>/dev/null; then
+  :
+else
+  rm -f "$tmp_mid" 2>/dev/null || true
+  chmod u+w "$MACHINE_ID_FILE" 2>/dev/null || true
+  tmp_mid2="$(mktemp)"
+  printf "%s" "$MACHINE_ID" > "$tmp_mid2"
+  if mv "$tmp_mid2" "$MACHINE_ID_FILE" 2>/dev/null; then
+    :
+  else
+    rm -f "$tmp_mid2" 2>/dev/null || true
+    if sudo -n mv "$tmp_mid2" "$MACHINE_ID_FILE" 2>/dev/null; then
+      :
+    else
+      echo -e "${YELLOW}Warning: could not update ${MACHINE_ID_FILE} (permission denied). Continuing."
+    fi
+  fi
+fi
+
+# Disable updater
+if [ -e "$UPDATER_PATH" ]; then
+  rm -rf "$UPDATER_PATH" 2>/dev/null || true
+fi
+
+# Lock app-update.yml (sudo fallback for /Applications)
+backup_file "$APP_UPDATE_YML"
+mkdir -p "$(dirname "$APP_UPDATE_YML")"
+tmp_u="$(mktemp)"
+printf "%s" '# This file is locked to prevent auto-updates
+version: 0.0.0
+' > "$tmp_u"
+if mv "$tmp_u" "$APP_UPDATE_YML" 2>/dev/null; then
+  :
+else
+  sudo -n mv "$tmp_u" "$APP_UPDATE_YML" 2>/dev/null || true
+fi
+chmod 444 "$APP_UPDATE_YML" 2>/dev/null || sudo -n chmod 444 "$APP_UPDATE_YML" 2>/dev/null || true
+
+# Remove update URLs from product.json if present
+if [ -f "$PRODUCT_JSON" ]; then
+  backup_file "$PRODUCT_JSON"
+  /usr/bin/perl -0777 -pe '
+    s|https://api2\.cursor\.sh/aiserver\.v1\.AuthService/DownloadUpdate||g;
+    s|https://api2\.cursor\.sh/updates||g;
+    s|http://cursorapi\.com/updates||g;
+  ' -i '' "$PRODUCT_JSON" 2>/dev/null || sudo -n /usr/bin/perl -0777 -pe '
+    s|https://api2\.cursor\.sh/aiserver\.v1\.AuthService/DownloadUpdate||g;
+    s|https://api2\.cursor\.sh/updates||g;
+    s|http://cursorapi\.com/updates||g;
+  ' -i '' "$PRODUCT_JSON" 2>/dev/null || true
+fi
+
+echo -e "${GREEN}New IDs:" \
+        "\n  telemetry.devDeviceId=$DEV_DEVICE_ID" \
+        "\n  telemetry.macMachineId=$MAC_MACHINE_ID" \
+        "\n  telemetry.machineId=$MACHINE_ID" \
+        "\n  telemetry.sqmId=$SQM_ID"
+
+echo -e "${BOLD}${YELLOW}opening account deletion page in browser"
+echo -e "${BLUE}you need to delete your account and create a new one (using previous email or new one - does not matter)"
+su -l "$RUN_AS_USER" -c "open '$DASHBOARD_URL'" 2>/dev/null || sudo -u "$RUN_AS_USER" open "$DASHBOARD_URL" 2>/dev/null || open "$DASHBOARD_URL"
+
+while true; do
+  read -r -p "Did you re-create your account? [y/N] " resp
+  if [[ "${resp:-N}" =~ ^[Yy]$ ]]; then
+    break
+  fi
+done
+
+echo -e "${BOLD}${GREEN}Account recreated!"
+echo -e "${BOLD}${YELLOW}Opening cursor settings"
+echo -e "(you need to login to your account)"
+
+su -l "$RUN_AS_USER" -c "open -a '$APP_NAME'" 2>/dev/null || sudo -u "$RUN_AS_USER" open -a "$APP_NAME" 2>/dev/null || open -a "$APP_NAME"
+sleep 2.5
+su -l "$RUN_AS_USER" -c "osascript -e 'tell application \"$APP_NAME\" to activate' -e 'tell application \"System Events\" to keystroke \"J\" using {command down, shift down}'" 2>/dev/null || osascript -e "tell application \"$APP_NAME\" to activate" -e 'tell application "System Events" to keystroke "J" using {command down, shift down}'
+
+echo -e "${BOLD}Happy usage!"
