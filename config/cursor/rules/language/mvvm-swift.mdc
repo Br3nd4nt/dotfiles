@@ -1,0 +1,91 @@
+---
+description: MVVM guidance for Swift/SwiftUI projects
+alwaysApply: false
+---
+
+# MVVM for Swift/SwiftUI
+
+- Prefer a unidirectional data flow: Model -> ViewModel -> View.
+- Keep Views dumb; Views render `@Published`/`@State` data and forward user intents.
+- ViewModels expose derived, presentation-ready state; no UIKit/SwiftUI imports.
+- Inject dependencies into ViewModels (constructor injection). No singletons.
+- Side effects (network, storage) live behind protocols; mockable in tests.
+- Never perform navigation or UI work in ViewModel; expose intents/flags for Views to react to.
+- Use `@MainActor` for state mutations observed by Views.
+- Persist minimal state in ViewModel; source of truth should be the Model layer.
+- Keep ViewModels small and feature-scoped; avoid massive God ViewModels.
+
+## Project structure
+
+- Features/{Feature}/
+  - View/
+  - ViewModel/
+  - Model/
+  - Services/
+
+## Example
+
+```swift
+import SwiftUI
+
+// Model
+struct Todo: Identifiable, Codable { let id: UUID; var title: String; var done: Bool }
+
+// Service protocol
+protocol TodoRepository {
+    func fetchTodos() async throws -> [Todo]
+    func toggle(id: UUID) async throws -> Todo
+}
+
+// ViewModel
+@MainActor
+final class TodoListViewModel: ObservableObject {
+    @Published private(set) var todos: [Todo] = []
+    @Published private(set) var isLoading = false
+    @Published var errorMessage: String?
+
+    private let repository: TodoRepository
+
+    init(repository: TodoRepository) { self.repository = repository }
+
+    func load() async {
+        isLoading = true
+        defer { isLoading = false }
+        do { todos = try await repository.fetchTodos() }
+        catch { errorMessage = String(describing: error) }
+    }
+
+    func toggle(_ id: UUID) async {
+        do {
+            let updated = try await repository.toggle(id: id)
+            if let index = todos.firstIndex(where: { $0.id == id }) { todos[index] = updated }
+        } catch { errorMessage = String(describing: error) }
+    }
+}
+
+// View
+struct TodoListView: View {
+    @StateObject var viewModel: TodoListViewModel
+
+    var body: some View {
+        List(viewModel.todos) { todo in
+            HStack {
+                Text(todo.title)
+                Spacer()
+                Image(systemName: todo.done ? "checkmark.circle.fill" : "circle")
+                    .onTapGesture { Task { await viewModel.toggle(todo.id) } }
+            }
+        }
+        .task { await viewModel.load() }
+        .overlay { if viewModel.isLoading { ProgressView() } }
+        .alert("Error", isPresented: .constant(viewModel.errorMessage != nil)) {
+        } message: { Text(viewModel.errorMessage ?? "") }
+    }
+}
+```
+
+## Testing
+
+- Provide a fake `TodoRepository` for unit tests.
+- Test ViewModel logic without rendering Views.
+
