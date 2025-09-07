@@ -138,3 +138,12 @@ function clear-scrollback-buffer {
 
 zle -N clear-scrollback-buffer
 bindkey '^L' clear-scrollback-buffer
+
+export PATH=$PATH:/Users/br3nd4nt/.spicetify
+
+# The next line updates PATH for CLI.
+if [ -f '/Users/br3nd4nt/yandex-cloud/path.bash.inc' ]; then source '/Users/br3nd4nt/yandex-cloud/path.bash.inc'; fi
+
+# The next line enables shell command completion for yc.
+if [ -f '/Users/br3nd4nt/yandex-cloud/completion.zsh.inc' ]; then source '/Users/br3nd4nt/yandex-cloud/completion.zsh.inc'; fi
+
