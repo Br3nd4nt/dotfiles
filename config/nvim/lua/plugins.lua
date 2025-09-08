@@ -524,7 +524,7 @@ local default_plugins = {
         },
 
         -- Swift
-        ["sourcekit-lsp"] = {
+        sourcekit = {
           cmd = { "/opt/homebrew/opt/swift/bin/sourcekit-lsp" },
           filetypes = { "swift" },
           root_dir = function(fname)

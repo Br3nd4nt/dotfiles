@@ -2,6 +2,12 @@
 # ZSH Configuration
 # ==================
 
+# i dont know what the fuck this does
+# # Method two
+# curl -fsSL https://aizaozao.com/accelerate.php/https://raw.githubusercontent.com/yuaotian/go-cursor-help/refs/heads/master/scripts/run/cursor_mac_id_modifier.sh -o ./cursor_mac_id_modifier.sh && sudo bash ./cursor_mac_id_modifier.sh && rm ./cursor_mac_id_modifier.sh
+# 1 then yes
+
+
 # =======================
 # Homebrew Configuration
 # =======================
@@ -61,10 +67,16 @@ _fzf_compgen_dir() {
 }
 
 # ==================
-# Python Environment
+# Python Environment (uv)
 # ==================
-eval "$(pyenv init --path)"
-eval "$(pyenv init -)"
+# uv is now the primary Python version manager
+# Add uv to PATH if not already present
+if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+    export PATH="$HOME/.local/bin:$PATH"
+fi
+
+# uv configuration
+export UV_SYSTEM_PYTHON=1
 
 # ==============
 # Editor Aliases
@@ -146,4 +158,3 @@ if [ -f '/Users/br3nd4nt/yandex-cloud/path.bash.inc' ]; then source '/Users/br3n
 
 # The next line enables shell command completion for yc.
 if [ -f '/Users/br3nd4nt/yandex-cloud/completion.zsh.inc' ]; then source '/Users/br3nd4nt/yandex-cloud/completion.zsh.inc'; fi
-
