@@ -92,7 +92,7 @@ fi
 
 # Basic aliases
 alias l='ls'
-alias ll='ls -lha'
+alias ll='ls -lahG'
 alias suod='sudo'
 alias grep='rg'
 alias myip='curl ipv4.icanhazip.com'

@@ -67,7 +67,7 @@ opt.completeopt = "menu,menuone,noselect"
 opt.termguicolors = true
 opt.cursorline = true
 opt.signcolumn = "yes"
-opt.wrap = false
+opt.wrap = true
 opt.linebreak = true
 opt.list = true
 opt.listchars = { tab = "  ", trail = "·" }

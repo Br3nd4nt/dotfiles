@@ -32,6 +32,8 @@ local default_plugins = {
     end,
   },
 
+{ "nvim-neotest/nvim-nio" },
+
   -- vim-airline status line
   {
     "vim-airline/vim-airline",
@@ -431,7 +433,7 @@ local default_plugins = {
       require("core.utils").load_mappings "lspconfig"
     end,
     config = function()
-      local lspconfig = require("lspconfig")
+      local lspconfig = vim.lsp.config
 
       -- Setup completion capabilities
       local capabilities = require('cmp_nvim_lsp').default_capabilities()
@@ -451,14 +453,17 @@ local default_plugins = {
 
         -- Python
         pyright = {
-          settings = {
-            python = {
-              analysis = {
-                typeCheckingMode = "basic",
-              },
-            },
-          },
-        },
+  settings = {
+    python = {
+      pythonPath = vim.fn.getcwd() .. "/.venv/bin/python", -- uv's default venv
+      analysis = {
+        typeCheckingMode = "basic", -- or "strict"
+        autoSearchPaths = true,
+        useLibraryCodeForTypes = true,
+      },
+    },
+  },
+},
 
         -- JSON
         jsonls = {
@@ -589,6 +594,7 @@ local default_plugins = {
   -- Auto pairs
   {
     "windwp/nvim-autopairs",
+    lazy=false,
     config = function()
       local autopairs = require("nvim-autopairs")
       autopairs.setup()
@@ -616,6 +622,7 @@ local default_plugins = {
   -- VSCode-like inline completion
   {
     "stevearc/dressing.nvim",
+    lazy=false,
     config = function()
       require("dressing").setup({
         input = {
@@ -637,6 +644,58 @@ local default_plugins = {
       })
     end,
   },
+
+{
+  "linux-cultist/venv-selector.nvim",
+  lazy=false,
+  dependencies = { "neovim/nvim-lspconfig", "nvim-telescope/telescope.nvim" },
+  config = function()
+    require("venv-selector").setup({
+      settings = {
+        search = {
+          venvs = { ".venv" }, -- uv default
+        },
+      },
+    })
+  end,
+},
+
+{
+  "nvimtools/none-ls.nvim",
+  dependencies = { "nvim-lua/plenary.nvim" },
+  config = function()
+    local null_ls = require("null-ls")
+    null_ls.setup({
+      sources = {
+        null_ls.builtins.formatting.black,
+        null_ls.builtins.formatting.isort,
+        null_ls.builtins.diagnostics.ruff,
+        null_ls.builtins.diagnostics.mypy,
+      },
+    })
+  end,
+},
+
+{
+  "mfussenegger/nvim-dap",
+  lazy=false,
+  dependencies = {
+    "mfussenegger/nvim-dap-python",
+    "rcarriga/nvim-dap-ui",
+  },
+  config = function()
+    local dapui = require("dapui")
+    dapui.setup()
+
+    -- Point to uv's .venv Python
+    require("dap-python").setup(vim.fn.getcwd() .. "/.venv/bin/python")
+
+    local dap = require("dap")
+    dap.listeners.after.event_initialized["dapui_config"] = function() dapui.open() end
+    dap.listeners.before.event_terminated["dapui_config"] = function() dapui.close() end
+    dap.listeners.before.event_exited["dapui_config"] = function() dapui.close() end
+  end,
+},
 
   -- Enhanced completion with better UI
   {
@@ -934,8 +993,9 @@ local default_plugins = {
       })
 
       -- Setup autopairs integration
-      local cmp_autopairs = require("nvim-autopairs.completion.cmp")
-      cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())
+      -- TODO: FIX!!!!
+      -- local cmp_autopairs = require("nvim-autopairs.cmp")
+      -- cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())
     end,
   },
 
