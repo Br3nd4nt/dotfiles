@@ -95,7 +95,6 @@ alias l='ls'
 alias ll='ls -lahG'
 alias suod='sudo'
 alias grep='rg'
-alias myip='curl ipv4.icanhazip.com'
 alias fman="compgen -c | fzf | xargs tldr"
 
 # Color support
@@ -108,6 +107,13 @@ if ls --color=auto &>/dev/null; then
 else
 	alias ls='ls -p -G'
 fi
+
+ip() {
+    #global ip
+    curl ipv4.icanhazip.com
+    #local ip
+    ifconfig en0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p'
+}
 
 # File management
 alias cleands='command find . -name ".DS_Store" -type f -delete'

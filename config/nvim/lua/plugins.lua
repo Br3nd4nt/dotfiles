@@ -105,16 +105,7 @@ local default_plugins = {
     end,
   },
 
-  -- Markdown preview
-  {
-    "iamcco/markdown-preview.nvim",
-    cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
-    build = "cd app && yarn install",
-    init = function()
-      vim.g.mkdp_filetypes = { "markdown" }
-    end,
-    ft = { "markdown" },
-  },
+
 
   -- Disable LuaRocks to avoid installation issues
   rocks = {
@@ -508,9 +499,6 @@ local default_plugins = {
           },
         },
 
-        -- Markdown
-        marksman = {},
-
         -- C/C++
         clangd = {
           cmd = { "clangd", "--background-index" },
@@ -676,26 +664,6 @@ local default_plugins = {
   end,
 },
 
-{
-  "mfussenegger/nvim-dap",
-  lazy=false,
-  dependencies = {
-    "mfussenegger/nvim-dap-python",
-    "rcarriga/nvim-dap-ui",
-  },
-  config = function()
-    local dapui = require("dapui")
-    dapui.setup()
-
-    -- Point to uv's .venv Python
-    require("dap-python").setup(vim.fn.getcwd() .. "/.venv/bin/python")
-
-    local dap = require("dap")
-    dap.listeners.after.event_initialized["dapui_config"] = function() dapui.open() end
-    dap.listeners.before.event_terminated["dapui_config"] = function() dapui.close() end
-    dap.listeners.before.event_exited["dapui_config"] = function() dapui.close() end
-  end,
-},
 
   -- Enhanced completion with better UI
   {
