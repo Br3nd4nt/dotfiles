@@ -10,4 +10,4 @@ vim.g.maplocalleader = " "
 require("core")
 
 -- Load plugins from git submodules
-require("plugins")
+require("plugins_main_loader")

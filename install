@@ -4,6 +4,8 @@
 # Dotfiles Installation Script
 # =============================================================================
 
+# TODO add fzf zoxide npm smth else...
+
 set -e
 
 # Colors for output
@@ -186,7 +188,7 @@ if [[ "$1" != "--install" ]]; then
     check_exists "$HOME/.config/nvim"
     check_exists "$HOME/.config/ohmyposh"
     echo
-    
+
     # Cursor configuration
     print_status "Cursor configuration:"
     check_exists "$HOME/.cursor/rules.mdc"
