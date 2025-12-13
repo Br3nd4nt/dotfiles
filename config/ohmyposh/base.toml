@@ -1,14 +1,15 @@
-version = 2
-final_space = true
 console_title_template = '{{ .Shell }} in {{ .Folder }}'
+version = 3
+final_space = true
 
 [[blocks]]
   type = 'prompt'
   alignment = 'left'
 
   [[blocks.segments]]
-    type = "path"
-    style = "plain"
+    type = 'path'
+    style = 'plain'
 
     [blocks.segments.properties]
-    style="full"
+      cache_duration = 'none'
+      style = 'full'

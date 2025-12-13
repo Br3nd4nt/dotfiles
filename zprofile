@@ -40,3 +40,6 @@ if [ -f "$HOME/.local/bin/env" ]; then
   . "$HOME/.local/bin/env"
 fi
 
+
+# Added by swiftly
+. "/Users/br3nd4nt/.swiftly/env.sh"

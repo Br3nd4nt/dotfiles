@@ -1,4 +1,6 @@
 local plugins = {
+    -- time spent coding stats
+    { 'wakatime/vim-wakatime', lazy = false },
     -- fuzzy finder
     {
     'nvim-telescope/telescope.nvim', tag = '0.1.8',

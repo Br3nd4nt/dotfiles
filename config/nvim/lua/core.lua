@@ -17,6 +17,9 @@ g.loaded_netrwPlugin = 1
 -- Editor Options
 -- =============================================================================
 
+g.mapleader = " "
+g.maplocalleader = " "
+
 -- Line numbers
 opt.number = true
 opt.relativenumber = true

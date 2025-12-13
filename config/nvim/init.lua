@@ -11,3 +11,6 @@ require("core")
 
 -- Load plugins from git submodules
 require("plugins_main_loader")
+
+-- Key Mappings
+-- require("keymappings").setup()

@@ -78,6 +78,10 @@ fi
 # uv configuration
 export UV_SYSTEM_PYTHON=1
 
+# rust 
+source "$HOME/.cargo/env"
+
+
 # ==============
 # Editor Aliases
 # ==============
@@ -118,7 +122,9 @@ ip() {
 # File management
 alias cleands='command find . -name ".DS_Store" -type f -delete'
 alias cd=z
+alias ls=eza
 alias find=fd
+alias twt='npx twt-dl-cli@latest'
 
 alias tree="tree -alx -L 5 -R --gitignore -I ".git" -I ".swiftlint" -I ".gitignore" --filelimit 10 -A -C"
 

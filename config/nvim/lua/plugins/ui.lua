@@ -1,3 +1,6 @@
+vim.g.mapleader = " "
+vim.g.maplocalleader = " "
+
 local plugins = {
     -- notifications
     {"j-hui/fidget.nvim"}, -- completion
@@ -36,13 +39,28 @@ local plugins = {
         opts_extend = {"sources.default"}
     }, -- themes
     {
+      "rebelot/kanagawa.nvim",
+      lazy = false,  -- load immediately
+      priority = 1000, -- make sure it loads before other UI plugins
+      config = function()
+        vim.cmd("colorscheme kanagawa-dragon") -- or your preferred default
+      end
+    },
+    {
         "zaldih/themery.nvim",
         lazy = false,
-        config = function()
-            require("themery").setup({
-                -- add the config here
-            })
-        end
+        -- config = function()
+        --   require("themery").setup({
+        --       themes = {{
+        --         name = "Day",
+        --         colorscheme = "kanagawa-lotus",
+        --       },
+        --       {
+        --         name = "Night",
+        --         colorscheme = "kanagawa-dragon",
+        --       }},
+        --   })
+        -- end
     }, -- status bar
     {
         "nvim-lualine/lualine.nvim",
@@ -77,9 +95,14 @@ local plugins = {
         ---@type ibl.config
         opts = {}
     }, -- helper with key mapping
+    { 'nvim-mini/mini.nvim', version = false },
     {
         "folke/which-key.nvim",
         event = "VeryLazy",
+        init = function()
+            vim.o.timeout = true
+            vim.o.timeoutlen = 500
+        end,
         opts = {
             plugins = {
                 marks = true,
@@ -95,16 +118,19 @@ local plugins = {
                     g = true
                 }
             },
-            timeout = 500
         },
-        keys = {
-            {
-                "<leader>",
-                function()
-                    require("which-key").show({global = true})
-                end
-            }
-        }
+        config = function(_, opts)
+            
+            local wk = require("which-key")
+            wk.setup(opts)
+            wk.add({
+               mode = { "n", "v" },
+               { "<leader>q", "<cmd>q<cr>", desc = "Quit" },
+               { "<leader>w", "<cmd>w<cr>", desc = "Write" },
+               { "<leader>h", function() wk.show("", { mode = "n" }) end, desc = "Show keybindings" },
+            })
+        end,
+
     }, {
         "folke/snacks.nvim",
         priority = 1000,
