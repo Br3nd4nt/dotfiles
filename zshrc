@@ -41,7 +41,7 @@ source $ZSH/oh-my-zsh.sh
 # Shell Enhancements
 # ==================
 # Oh My Posh prompt
-eval "$(oh-my-posh init zsh --config $HOME/.config/ohmyposh/base.toml)"
+eval "$(oh-my-posh init zsh --config $HOME/.config/ohmyposh/omp.yml)"
 
 # Zoxide (smart cd)
 eval "$(zoxide init zsh)"
