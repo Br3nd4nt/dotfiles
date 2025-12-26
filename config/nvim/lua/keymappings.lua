@@ -1,6 +1,7 @@
 local M = {}
 
 function M.setup()
+    local keymap = vim.keymap.set
     local mappings = {
         n = {
             ['<leader>q'] = { ':q<CR>', 'Quit' },
@@ -10,22 +11,26 @@ function M.setup()
 
     for mode, mode_mappings in pairs(mappings) do
         for key, mapping in pairs(mode_mappings) do
-            vim.keymap.set(mode, key, mapping[1], { desc = mapping[2] })
+            keymap(mode, key, mapping[1], { desc = mapping[2] })
         end
     end
-
-     local keymap = vim.keymap.set
 
     -- Delete without yanking (black hole register)
     keymap("n", "d", '"_d', { noremap = true })
     keymap("n", "x", '"_x', { noremap = true })
     keymap("v", "d", '"_d', { noremap = true })
 
-    -- Optional: keep change from polluting clipboard
     keymap("n", "c", '"_c', { noremap = true })
     keymap("v", "c", '"_c', { noremap = true })
 
+    -- force to use hjkl (fuck your keys)
+    for _, mode in ipairs({"n", "i", "v"}) do
+        keymap(mode, "<Up>", "<Nop>", { noremap = true })
+        keymap(mode, "<Down>", "<Nop>", { noremap = true })
+        keymap(mode, "<Left>", "<Nop>", { noremap = true })
+        keymap(mode, "<Right>", "<Nop>", { noremap = true })
 
+    end
 end
 
 return M
