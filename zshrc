@@ -2,11 +2,7 @@
 # ZSH Configuration
 # ==================
 
-# i dont know what the fuck this does
-# # Method two
-# curl -fsSL https://aizaozao.com/accelerate.php/https://raw.githubusercontent.com/yuaotian/go-cursor-help/refs/heads/master/scripts/run/cursor_mac_id_modifier.sh -o ./cursor_mac_id_modifier.sh && sudo bash ./cursor_mac_id_modifier.sh && rm ./cursor_mac_id_modifier.sh
-# 1 then yes
-
+alias neofetch="hyfetch"
 
 # =======================
 # Homebrew Configuration
@@ -170,3 +166,7 @@ if [ -f '/Users/br3nd4nt/yandex-cloud/path.bash.inc' ]; then source '/Users/br3n
 
 # The next line enables shell command completion for yc.
 if [ -f '/Users/br3nd4nt/yandex-cloud/completion.zsh.inc' ]; then source '/Users/br3nd4nt/yandex-cloud/completion.zsh.inc'; fi
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+# export SDKMAN_DIR="$HOME/.sdkman"
+# [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"

@@ -4,3 +4,8 @@
 	email = Vlad.belov.08@gmail.com
 [core]
 	excludesfile = /Users/br3nd4nt/.gitignore_global
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true

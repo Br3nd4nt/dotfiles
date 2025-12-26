@@ -16,7 +16,9 @@ blocks:
     segments:
       - type: git
         style: plain
-        foreground: "#ffffff"
+        foreground_templates:
+          - "{{ if contains .Env.COLORFGBG \";0\" }}#000000{{ end }}"
+          - "{{ if contains .Env.COLORFGBG \";15\" }}#ffffff{{ end }}"
       - type: status
         style: plain
         foreground: green

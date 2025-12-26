@@ -3,6 +3,7 @@ font-size = 14
 cursor-style = block
 confirm-close-surface = false
 adjust-cell-height = 35%
+background-blur = macos-glass-regular
 background-opacity = 0.95
 mouse-hide-while-typing = true
 mouse-scroll-multiplier = 2
