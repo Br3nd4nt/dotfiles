@@ -1,0 +1,18 @@
+# Surround.nvim examples for Neovim
+
+## surround @surround @s: examples for adding, deleting, and changing surroundings
+
+Add parentheses around word: surr*ound_words -> (surround_words) | ysiw)
+Add parentheses with spaces: surr*ound_words -> ( surround_words ) | ysiw(
+Add quotes to end of line: *make strings -> "make strings" | ys$"
+Delete brackets: [delete ar*ound me!] -> delete around me! | ds]
+Delete HTML tags: remove <b>HTML t*ags</b> -> remove HTML tags | dst
+Change quotes: 'change quot*es' -> "change quotes" | cs'"
+Change tag type: <b>or tag* types</b> -> <h1>or tag types</h1> | csth1<CR>
+Delete parentheses: delete(functi*on calls) -> function calls | dsf
+
+
+## replace
+
+Change all occurrences of 'foo' to 'bar' globally: foo -> bar | :%s/foo/bar/g
+Change 'foo' to 'bar' only in the selected part: foo -> bar | :'<,'>s/foo/bar/g

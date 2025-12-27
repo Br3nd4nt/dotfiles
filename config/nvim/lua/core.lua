@@ -6,17 +6,10 @@ local opt = vim.opt
 local g = vim.g
 
 -- =============================================================================
--- General Settings
--- =============================================================================
-
--- Disable netrw (use telescope for file browsing)
-g.loaded_netrw = 1
-g.loaded_netrwPlugin = 1
-
--- =============================================================================
 -- Editor Options
 -- =============================================================================
 
+opt.termguicolors = true
 g.mapleader = " "
 g.maplocalleader = " "
 
