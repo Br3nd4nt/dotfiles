@@ -56,3 +56,15 @@ opt.wrap = true
 opt.linebreak = true
 opt.list = true
 opt.listchars = { tab = "  ", trail = "·" }
+
+-- metal shaders
+vim.filetype.add({
+	extension = {
+		metal = "metal",
+	},
+})
+
+-- vim.lsp.config("clangd", {
+-- 	cmd = { "clangd" },
+-- 	filetypes = { "c", "cpp", "objc", "objcpp", "metal" },
+-- })

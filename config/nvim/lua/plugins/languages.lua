@@ -1,5 +1,19 @@
 local plugins = {
 	{
+		"nvim-treesitter/nvim-treesitter",
+		build = ":TSUpdate",
+		opts = {
+			ensure_installed = { "cpp", "c" },
+			highlight = { enable = true },
+		},
+		config = function(_, opts)
+			local tree = require("nvim-treesitter")
+			tree.setup(opts)
+
+			vim.treesitter.language.register("cpp", "metal")
+		end,
+	},
+	{
 		"williamboman/mason.nvim",
 		config = true,
 	},

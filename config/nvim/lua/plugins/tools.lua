@@ -30,6 +30,8 @@ local plugins = {
 					swift = { "swiftformat" },
 					python = { "isort", "black" },
 					rust = { "rustfmt", lsp_format = "fallback" },
+					metal = { "clang_format" },
+					cpp = { "clang_format" },
 				},
 				format_on_save = {
 					-- These options will be passed to conform.format()
