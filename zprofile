@@ -42,4 +42,4 @@ fi
 
 
 # Added by swiftly
-. "/Users/br3nd4nt/.swiftly/env.sh"
+[[ -f ~/.swiftly/env.sh ]] && . "/Users/br3nd4nt/.swiftly/env.sh"

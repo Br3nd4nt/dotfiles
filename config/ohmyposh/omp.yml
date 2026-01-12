@@ -8,16 +8,16 @@ blocks:
   - type: prompt
     alignment: left
     segments:
+      - type: session
+        style: plain
+        foreground: "#ffd2d1"
+        template: "{{ if .SSHSession }}{{ .HostName}}{{ end }}"
       - type: path
         properties:
           style: full
   - type: prompt
     alignment: left
     segments:
-      - type: host
-        style: plain
-        foreground: yellow
-        template: "{{ if .Env.SSH_CONNECTION }}{{ .HostName }} {{ end }}"
       - type: git
         style: plain
         foreground_templates:

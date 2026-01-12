@@ -1,7 +1,7 @@
 # ==================
 # ZSH Configuration
 # ==================
-
+alias balala="/Users/br3nd4nt/Library/Application\ Support/Steam/steamapps/common/Balatro/run_lovely_macos.sh"
 alias neofetch="hyfetch"
 
 # =======================
@@ -75,16 +75,13 @@ fi
 export UV_SYSTEM_PYTHON=1
 
 # rust 
-source "$HOME/.cargo/env"
-
+[[ -f "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
 
 # ==============
 # Editor Aliases
 # ==============
-if [[ -z $SSH_CONNECTION ]]; then
-  alias vim=nvim
-  alias v=nvim
-fi
+alias vim=nvim
+alias v=nvim
 
 # ============
 # User Aliases
