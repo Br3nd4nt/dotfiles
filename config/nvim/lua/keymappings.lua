@@ -23,6 +23,17 @@ function M.setup()
 	keymap("n", "c", '"_c', { noremap = true })
 	keymap("v", "c", '"_c', { noremap = true })
 
+	-- Quick-run Python scripts with uv (space + p + p)
+	vim.api.nvim_create_autocmd("FileType", {
+		pattern = "python",
+		callback = function(event)
+			keymap("n", "<localleader>pp", "<cmd>!uv run '%'<CR>", {
+				buffer = event.buf,
+				desc = "Run Python file (uv)",
+			})
+		end,
+	})
+
 	-- force to use hjkl (fuck your arrows)
 	for _, mode in ipairs({ "n", "v" }) do
 		keymap(mode, "<Up>", "<Nop>", { noremap = true })

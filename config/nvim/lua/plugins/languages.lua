@@ -3,7 +3,7 @@ local plugins = {
 		"nvim-treesitter/nvim-treesitter",
 		build = ":TSUpdate",
 		opts = {
-			ensure_installed = { "cpp", "c" },
+			ensure_installed = { "cpp", "c", "python", "swift" },
 			highlight = { enable = true },
 		},
 		config = function(_, opts)
@@ -14,16 +14,23 @@ local plugins = {
 		end,
 	},
 	{
-		"williamboman/mason.nvim",
-		config = true,
-	},
-	{
 		"williamboman/mason-lspconfig.nvim",
-		dependencies = { "williamboman/mason.nvim" },
-		config = function()
-			require("mason-lspconfig").setup({
-				automatic_installation = true,
+		lazy = false,
+		opts = {
+			ensure_installed = { "pyright", "clangd" },
+		},
+		dependencies = {
+			{ "williamboman/mason.nvim", opts = {} },
+			"neovim/nvim-lspconfig",
+		},
+		config = function(_, opts)
+			require("mason-lspconfig").setup(opts)
+			-- sourcekit-lsp ships with Xcode, not Mason.
+			vim.lsp.config("sourcekit", {
+				cmd = { "xcrun", "sourcekit-lsp" },
+				filetypes = { "swift", "objc", "objcpp" },
 			})
+			vim.lsp.enable("sourcekit")
 		end,
 	},
 	{

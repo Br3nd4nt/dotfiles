@@ -1,8 +1,10 @@
 # ==================
 # ZSH Configuration
 # ==================
-alias balala="/Users/br3nd4nt/Library/Application\ Support/Steam/steamapps/common/Balatro/run_lovely_macos.sh"
-alias neofetch="hyfetch"
+  export NVM_DIR="$HOME/.nvm"
+  [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
+  [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
+
 
 # =======================
 # Homebrew Configuration
@@ -82,6 +84,7 @@ export UV_SYSTEM_PYTHON=1
 # ==============
 alias vim=nvim
 alias v=nvim
+alias code=codium
 
 # ============
 # User Aliases
@@ -93,6 +96,10 @@ alias ll='ls -lahG'
 alias suod='sudo'
 alias grep='rg'
 alias fman="compgen -c | fzf | xargs tldr"
+
+alias twt='npx twt-dl-cli@latest'
+alias neofetch="hyfetch"
+alias htop="btop"
 
 # Color support
 grep --color=auto < /dev/null &>/dev/null && alias grep='grep --color=auto'
@@ -107,9 +114,11 @@ fi
 
 ip() {
     #global ip
+    printf "global: "
     curl ipv4.icanhazip.com
     #local ip
-    ifconfig en0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p'
+    printf "local: "
+    ifconfig en0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p'  | echo "local $1"
 }
 
 # File management
@@ -117,9 +126,18 @@ alias cleands='command find . -name ".DS_Store" -type f -delete'
 alias cd=z
 alias ls=eza
 alias find=fd
-alias twt='npx twt-dl-cli@latest'
 
-alias tree="tree -alx -L 5 -R --gitignore -I ".git" -I ".swiftlint" -I ".gitignore" --filelimit 10 -A -C"
+alias tree="tree -alx -L 5 -R --gitignore -I ".git" -I ".swiftlint" -I ".gitignore" --filelimit 50 -A -C"
+
+_spm_clean() {
+    rm Package.resolved
+    rm -rf .build
+    rm -rf *.xcodeproj
+    rm -rf Packages
+}
+
+alias spm-clean='_spm_clean'
+
 
 # Development tools
 alias gl="git log --graph --pretty=oneline --abbrev-commit"
@@ -155,15 +173,3 @@ function clear-scrollback-buffer {
 
 zle -N clear-scrollback-buffer
 bindkey '^L' clear-scrollback-buffer
-
-export PATH=$PATH:/Users/br3nd4nt/.spicetify
-
-# The next line updates PATH for CLI.
-if [ -f '/Users/br3nd4nt/yandex-cloud/path.bash.inc' ]; then source '/Users/br3nd4nt/yandex-cloud/path.bash.inc'; fi
-
-# The next line enables shell command completion for yc.
-if [ -f '/Users/br3nd4nt/yandex-cloud/completion.zsh.inc' ]; then source '/Users/br3nd4nt/yandex-cloud/completion.zsh.inc'; fi
-
-#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-# export SDKMAN_DIR="$HOME/.sdkman"
-# [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
