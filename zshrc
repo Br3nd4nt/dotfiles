@@ -118,7 +118,7 @@ ip() {
     curl ipv4.icanhazip.com
     #local ip
     printf "local: "
-    ifconfig en0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p'  | echo "local $1"
+    ifconfig en0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p'
 }
 
 # File management
