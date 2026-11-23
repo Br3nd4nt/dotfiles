@@ -43,3 +43,13 @@ fi
 
 # Added by swiftly
 [[ -f ~/.swiftly/env.sh ]] && . "/Users/br3nd4nt/.swiftly/env.sh"
+
+
+# Added by Antigravity CLI installer
+export PATH="/Users/br3nd4nt/.local/bin:$PATH"
+
+# Added by OrbStack: command-line tools and integration
+# This won't be added again if you remove it.
+source ~/.orbstack/shell/init.zsh 2>/dev/null || :
+
+export PATH="$HOME/.elan/bin:$PATH"

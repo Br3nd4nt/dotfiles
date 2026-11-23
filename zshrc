@@ -173,3 +173,8 @@ function clear-scrollback-buffer {
 
 zle -N clear-scrollback-buffer
 bindkey '^L' clear-scrollback-buffer
+export PATH=$PATH:$(go env GOPATH)/bin
+
+
+# Added by Antigravity CLI installer
+export PATH="/Users/br3nd4nt/.local/bin:$PATH"
